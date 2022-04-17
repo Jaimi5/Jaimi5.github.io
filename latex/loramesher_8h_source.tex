@@ -1,0 +1,469 @@
+\hypertarget{loramesher_8h_source}{}\doxysection{loramesher.\+h}
+\label{loramesher_8h_source}\index{C:/Users/janm2/Documents/PlatformIO/Projects/GpsAndDisplay/.pio/libdeps/ttgo-\/t-\/beam/LoRaMesher/src/loramesher.h@{C:/Users/janm2/Documents/PlatformIO/Projects/GpsAndDisplay/.pio/libdeps/ttgo-\/t-\/beam/LoRaMesher/src/loramesher.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef \_\_LORAMESHER\_\_}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define \_\_LORAMESHER\_\_}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{comment}{// LoRa libraries}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}RadioLib.h"{}}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{comment}{// WiFi libraries}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <WiFi.h>}}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#include "{}helpers\(\backslash\)LinkedQueue.hpp"{}}}
+\DoxyCodeLine{11 }
+\DoxyCodeLine{12 \textcolor{comment}{// Logger}}
+\DoxyCodeLine{13 \textcolor{comment}{//\#define DISABLE\_LOGGING}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{\#include <ArduinoLog.h>}}
+\DoxyCodeLine{15 }
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17 \textcolor{comment}{// LoRa transceiver module pins}}
+\DoxyCodeLine{18 \textcolor{preprocessor}{\#define SCK 5}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#define MISO 19}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#define MOSI 27}}
+\DoxyCodeLine{21 \textcolor{preprocessor}{\#define SS 18}}
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#define RST 14}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{\#define DIO0 26}}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{comment}{// LoRa band definition}}
+\DoxyCodeLine{26 \textcolor{comment}{// 433E6 for Asia}}
+\DoxyCodeLine{27 \textcolor{comment}{// 866E6 for Europe}}
+\DoxyCodeLine{28 \textcolor{comment}{// 915E6 for North America}}
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#define BAND 868.0F}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#define BANDWIDTH 125.0F}}
+\DoxyCodeLine{31 \textcolor{preprocessor}{\#define LORASF 7U }\textcolor{comment}{// Spreading factor 6-\/12 (default 7)}}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33 \textcolor{comment}{// Comment this line if you want to remove the crc for each packet}}
+\DoxyCodeLine{34 \textcolor{preprocessor}{\#define ADDCRC\_PAYLOAD}}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36 \textcolor{comment}{// Routing table max size}}
+\DoxyCodeLine{37 \textcolor{preprocessor}{\#define RTMAXSIZE 256}}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39 \textcolor{comment}{//MAX packet size per packet}}
+\DoxyCodeLine{40 \textcolor{comment}{//If exceed it will be automatically separated through multiple packets }}
+\DoxyCodeLine{41 \textcolor{comment}{//In bytes (226 bytes [UE max allowed with SF7 and 125khz])}}
+\DoxyCodeLine{42 \textcolor{comment}{//MAX payload size for hello packets = MAXPACKETSIZE -\/ 6 bytes of header}}
+\DoxyCodeLine{43 \textcolor{comment}{//MAX payload size for data packets = MAXPACKETSIZE -\/ 6 bytes of header -\/ 2 bytes of via}}
+\DoxyCodeLine{44 \textcolor{comment}{//MAX payload size for reliable and large packets = MAXPACKETSIZE -\/ 6 bytes of header -\/ 2 bytes of via -\/ 3 of control packet}}
+\DoxyCodeLine{45 \textcolor{preprocessor}{\#define MAXPACKETSIZE 222}}
+\DoxyCodeLine{46 }
+\DoxyCodeLine{47 \textcolor{comment}{// Packet types}}
+\DoxyCodeLine{48 \textcolor{preprocessor}{\#define NEED\_ACK\_P 0b00000001}}
+\DoxyCodeLine{49 \textcolor{preprocessor}{\#define DATA\_P     0b00000010}}
+\DoxyCodeLine{50 \textcolor{preprocessor}{\#define HELLO\_P    0b00000100}}
+\DoxyCodeLine{51 \textcolor{preprocessor}{\#define ACK\_P      0b00001000}}
+\DoxyCodeLine{52 \textcolor{preprocessor}{\#define XL\_DATA\_P  0b00010000}}
+\DoxyCodeLine{53 \textcolor{preprocessor}{\#define LOST\_P     0b00100000}}
+\DoxyCodeLine{54 \textcolor{preprocessor}{\#define SYNC\_P     0b01000000}}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56 \textcolor{comment}{// Packet configuration}}
+\DoxyCodeLine{57 \textcolor{preprocessor}{\#define BROADCAST\_ADDR 0xFFFF}}
+\DoxyCodeLine{58 \textcolor{preprocessor}{\#define DEFAULT\_PRIORITY 20}}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60 \textcolor{comment}{//Definition Times in secods}}
+\DoxyCodeLine{61 \textcolor{preprocessor}{\#define DEFAULT\_TIMEOUT 60}}
+\DoxyCodeLine{62 \textcolor{preprocessor}{\#define HELLO\_PACKETS\_DELAY 60}}
+\DoxyCodeLine{63 \textcolor{preprocessor}{\#define SEND\_PACKETS\_DELAY 10}}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65 \textcolor{comment}{//Maximum times that a sequence of packets reach timeout}}
+\DoxyCodeLine{66 \textcolor{preprocessor}{\#define MAX\_TIMEOUTS 3}}
+\DoxyCodeLine{67 }
+\DoxyCodeLine{86 \textcolor{keyword}{class }\mbox{\hyperlink{class_lora_mesher}{LoraMesher}} \{}
+\DoxyCodeLine{87 }
+\DoxyCodeLine{88 \textcolor{keyword}{public}:}
+\DoxyCodeLine{121     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_ac3807f4ae5e6fa40e7e403df040e69ca}{init}}(\textcolor{keywordtype}{void} (*receiverFunction)(\textcolor{keywordtype}{void}*));}
+\DoxyCodeLine{122 }
+\DoxyCodeLine{128     \textcolor{keyword}{static} \mbox{\hyperlink{class_lora_mesher}{LoraMesher}}\& \mbox{\hyperlink{class_lora_mesher_a7b71856ecfaa71d694fb008c0ba4642a}{getInstance}}() \{}
+\DoxyCodeLine{129         \textcolor{keyword}{static} \mbox{\hyperlink{class_lora_mesher}{LoraMesher}} instance;}
+\DoxyCodeLine{130         \textcolor{keywordflow}{return} instance;}
+\DoxyCodeLine{131     \}}
+\DoxyCodeLine{132 }
+\DoxyCodeLine{137     \mbox{\hyperlink{class_lora_mesher_ac6387d236746f74a845167907668f5de}{\string~LoraMesher}}();}
+\DoxyCodeLine{138 }
+\DoxyCodeLine{139 \textcolor{preprocessor}{\#pragma pack(push, 1)}}
+\DoxyCodeLine{140     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{141     \textcolor{comment}{//TODO: What should be needed by the user?}}
+\DoxyCodeLine{142     \textcolor{keyword}{struct }\mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{userPacket}} \{}
+\DoxyCodeLine{143         uint16\_t dst;}
+\DoxyCodeLine{144         uint16\_t src;}
+\DoxyCodeLine{145         uint32\_t payloadSize = 0;}
+\DoxyCodeLine{146         T payload[];}
+\DoxyCodeLine{147     \};}
+\DoxyCodeLine{148 \textcolor{preprocessor}{\#pragma pack(pop)}}
+\DoxyCodeLine{149 }
+\DoxyCodeLine{158     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{159     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_ac600ecb52b71892e12bb7e1889be6de8}{createPacketAndSend}}(uint16\_t dst, T* payload, uint8\_t payloadSize) \{}
+\DoxyCodeLine{160         \textcolor{comment}{//Cannot send an empty packet}}
+\DoxyCodeLine{161         \textcolor{keywordflow}{if} (payloadSize == 0)}
+\DoxyCodeLine{162             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{163 }
+\DoxyCodeLine{164         \textcolor{comment}{//Get the size of the payload in bytes}}
+\DoxyCodeLine{165         \textcolor{keywordtype}{size\_t} payloadSizeInBytes = payloadSize * \textcolor{keyword}{sizeof}(T);}
+\DoxyCodeLine{166 }
+\DoxyCodeLine{167         \textcolor{comment}{//Create the packet and set it to the send queue}}
+\DoxyCodeLine{168         setPackedForSend(createPacket(dst, \mbox{\hyperlink{class_lora_mesher_a1cd59cbd716f9e11ca993798f79d7a41}{getLocalAddress}}(), DATA\_P, payload, payloadSizeInBytes), DEFAULT\_PRIORITY);}
+\DoxyCodeLine{169     \}}
+\DoxyCodeLine{170 }
+\DoxyCodeLine{179     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_a129d8a250d3b7dce85f735d6313fb256}{sendReliablePacket}}(uint16\_t dst, uint8\_t* payload, uint32\_t payloadSize);}
+\DoxyCodeLine{180 }
+\DoxyCodeLine{189     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{190     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_afd00da774300a17399cbee5941ebc934}{sendReliable}}(uint16\_t dst, T* payload, uint32\_t payloadSize) \{}
+\DoxyCodeLine{191         \mbox{\hyperlink{class_lora_mesher_a129d8a250d3b7dce85f735d6313fb256}{sendReliablePacket}}(dst, (uint8\_t*) payload, \textcolor{keyword}{sizeof}(T) * payloadSize);}
+\DoxyCodeLine{192     \}}
+\DoxyCodeLine{193 }
+\DoxyCodeLine{199     \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{class_lora_mesher_af02b008ec573f4c0f0b3ea7a31e0982e}{getReceivedQueueSize}}();}
+\DoxyCodeLine{200 }
+\DoxyCodeLine{207     \textcolor{keyword}{template}<\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{208     \mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{userPacket<T>}}* \mbox{\hyperlink{class_lora_mesher_a54e0edeaf306b3647325bd362982ee8d}{getNextUserPacket}}() \{}
+\DoxyCodeLine{209         packetQueue<userPacket<T>>* pq = ReceivedUserPackets-\/>Pop<\mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{userPacket<T>}}>();}
+\DoxyCodeLine{210         \mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{userPacket<T>}}* packet = pq-\/>packet;}
+\DoxyCodeLine{211 }
+\DoxyCodeLine{212         deletePacketQueue(pq);}
+\DoxyCodeLine{213 }
+\DoxyCodeLine{214         \textcolor{keywordflow}{return} packet;}
+\DoxyCodeLine{215     \}}
+\DoxyCodeLine{216 }
+\DoxyCodeLine{224     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{225     \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{class_lora_mesher_ae12b570f2c65008f93704b2d2236e8f8}{getPayloadLength}}(\mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{userPacket<T>}}* p) \{}
+\DoxyCodeLine{226         \textcolor{keywordflow}{return} p-\/>payloadSize / \textcolor{keyword}{sizeof}(T);}
+\DoxyCodeLine{227     \}}
+\DoxyCodeLine{228 }
+\DoxyCodeLine{235     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{236     \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_a2d6e1298189108bbc07ff5621e4d667a}{deletePacket}}(\mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{userPacket<T>}}* p) \{}
+\DoxyCodeLine{237         Log.trace(F(\textcolor{stringliteral}{"{}Deleting user packet"{}} CR));}
+\DoxyCodeLine{238         free(p);}
+\DoxyCodeLine{239     \}}
+\DoxyCodeLine{240 }
+\DoxyCodeLine{241 \textcolor{preprocessor}{\#pragma pack(push, 1)}}
+\DoxyCodeLine{242     \textcolor{keyword}{struct }\mbox{\hyperlink{struct_lora_mesher_1_1network_node}{networkNode}} \{}
+\DoxyCodeLine{243         uint16\_t address = 0;}
+\DoxyCodeLine{244         uint8\_t metric = 0;}
+\DoxyCodeLine{245     \};}
+\DoxyCodeLine{246 }
+\DoxyCodeLine{247     \textcolor{keyword}{struct }\mbox{\hyperlink{struct_lora_mesher_1_1routable_node}{routableNode}} \{}
+\DoxyCodeLine{248         \mbox{\hyperlink{struct_lora_mesher_1_1network_node}{LoraMesher::networkNode}} \mbox{\hyperlink{struct_lora_mesher_1_1network_node}{networkNode}};}
+\DoxyCodeLine{249         \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} timeout = 0;}
+\DoxyCodeLine{250         uint16\_t via = 0;}
+\DoxyCodeLine{251     \};}
+\DoxyCodeLine{252 \textcolor{preprocessor}{\#pragma pack(pop)}}
+\DoxyCodeLine{253 }
+\DoxyCodeLine{258     \mbox{\hyperlink{struct_lora_mesher_1_1routable_node}{routableNode}} \mbox{\hyperlink{class_lora_mesher_a27e10ff173408bfa52063d6bfef2d60a}{routingTable}}[RTMAXSIZE];}
+\DoxyCodeLine{259 }
+\DoxyCodeLine{264     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_a1ec79ff9602ef2b990324ac8df5900e8}{printRoutingTable}}();}
+\DoxyCodeLine{265 }
+\DoxyCodeLine{271     \textcolor{keywordtype}{int} \mbox{\hyperlink{class_lora_mesher_ab70a80c723b4a610b897fd8f523a3359}{routingTableSize}}();}
+\DoxyCodeLine{272 }
+\DoxyCodeLine{280     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_lora_mesher_ae1500aa34fee29223f7e26552ed15f10}{hasAddresRoutingTable}}(uint16\_t address);}
+\DoxyCodeLine{281 }
+\DoxyCodeLine{288     uint16\_t \mbox{\hyperlink{class_lora_mesher_a59ed7f736562ef6962047ce4ef622dd2}{getNextHop}}(uint16\_t dst);}
+\DoxyCodeLine{289 }
+\DoxyCodeLine{295     uint16\_t \mbox{\hyperlink{class_lora_mesher_a1cd59cbd716f9e11ca993798f79d7a41}{getLocalAddress}}();}
+\DoxyCodeLine{296 }
+\DoxyCodeLine{297 }
+\DoxyCodeLine{298 \textcolor{keyword}{private}:}
+\DoxyCodeLine{299 }
+\DoxyCodeLine{304     \mbox{\hyperlink{class_lora_mesher}{LoraMesher}}();}
+\DoxyCodeLine{305 }
+\DoxyCodeLine{310     uint16\_t localAddress;}
+\DoxyCodeLine{311 }
+\DoxyCodeLine{316     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} routeTimeout;}
+\DoxyCodeLine{317 }
+\DoxyCodeLine{322     SX1276* radio;}
+\DoxyCodeLine{323 }
+\DoxyCodeLine{328     TaskHandle\_t Hello\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{329 }
+\DoxyCodeLine{335     TaskHandle\_t ReceivePacket\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{336 }
+\DoxyCodeLine{342     TaskHandle\_t ReceiveData\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{343 }
+\DoxyCodeLine{349     TaskHandle\_t SendData\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{350 }
+\DoxyCodeLine{356     TaskHandle\_t FinishTransmit\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{357 }
+\DoxyCodeLine{363     TaskHandle\_t ReceivedUserData\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{364 }
+\DoxyCodeLine{369     TaskHandle\_t PacketManager\_TaskHandle = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{370 }
+\DoxyCodeLine{371     \textcolor{keyword}{static} \textcolor{keywordtype}{void} onReceive(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{372 }
+\DoxyCodeLine{373     \textcolor{keyword}{static} \textcolor{keywordtype}{void} onFinishTransmit(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{374 }
+\DoxyCodeLine{375     \textcolor{keywordtype}{void} onFinishTransmitRoutine();}
+\DoxyCodeLine{376 }
+\DoxyCodeLine{377     \textcolor{keywordtype}{void} receivingRoutine();}
+\DoxyCodeLine{378 }
+\DoxyCodeLine{379     \textcolor{keywordtype}{void} initializeLocalAddress();}
+\DoxyCodeLine{380 }
+\DoxyCodeLine{381     \textcolor{keywordtype}{void} initializeLoRa();}
+\DoxyCodeLine{382 }
+\DoxyCodeLine{383     \textcolor{keywordtype}{void} initializeScheduler(\textcolor{keywordtype}{void} (*func)(\textcolor{keywordtype}{void}*));}
+\DoxyCodeLine{384 }
+\DoxyCodeLine{385     \textcolor{keywordtype}{void} sendHelloPacket();}
+\DoxyCodeLine{386 }
+\DoxyCodeLine{387     \textcolor{keywordtype}{void} packetManager();}
+\DoxyCodeLine{388 }
+\DoxyCodeLine{394     \textcolor{keywordtype}{void} processPackets();}
+\DoxyCodeLine{395 }
+\DoxyCodeLine{396 \textcolor{preprocessor}{\#pragma pack(push, 1)}}
+\DoxyCodeLine{397     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{398     \textcolor{keyword}{struct }packet \{}
+\DoxyCodeLine{399         uint16\_t dst;}
+\DoxyCodeLine{400         uint16\_t src;}
+\DoxyCodeLine{401         uint8\_t type;}
+\DoxyCodeLine{402         uint8\_t payloadSize = 0;}
+\DoxyCodeLine{403         T payload[];}
+\DoxyCodeLine{404     \};}
+\DoxyCodeLine{405 }
+\DoxyCodeLine{406     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{407     \textcolor{keyword}{struct }\mbox{\hyperlink{structdata_packet}{dataPacket}} \{}
+\DoxyCodeLine{408         uint16\_t via;}
+\DoxyCodeLine{409         T payload[];}
+\DoxyCodeLine{410     \};}
+\DoxyCodeLine{411 }
+\DoxyCodeLine{412     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{413     \textcolor{keyword}{struct }controlPacket \{}
+\DoxyCodeLine{414         uint8\_t seq\_id;}
+\DoxyCodeLine{415         uint16\_t number;}
+\DoxyCodeLine{416         T payload[];}
+\DoxyCodeLine{417     \};}
+\DoxyCodeLine{418 }
+\DoxyCodeLine{419 \textcolor{preprocessor}{\#pragma pack(pop)}}
+\DoxyCodeLine{420 }
+\DoxyCodeLine{421 }
+\DoxyCodeLine{429     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{430     T* getPayload(packet<T>* packet) \{}
+\DoxyCodeLine{431         \textcolor{keywordflow}{return} (T*) ((\textcolor{keywordtype}{unsigned} long) packet-\/>payload + getExtraLengthToPayload(packet-\/>type));}
+\DoxyCodeLine{432     \}}
+\DoxyCodeLine{433 }
+\DoxyCodeLine{445     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{446     \textcolor{keyword}{struct }packet<uint8\_t>* createPacket(uint16\_t dst, uint16\_t src, uint8\_t type, T* payload, uint8\_t payloadSize) \{}
+\DoxyCodeLine{447         uint8\_t extraSize = getExtraLengthToPayload(type);}
+\DoxyCodeLine{448 }
+\DoxyCodeLine{449         packet<uint8\_t>* p = createPacket((uint8\_t*) payload, payloadSize, extraSize);}
+\DoxyCodeLine{450         p-\/>dst = dst;}
+\DoxyCodeLine{451         p-\/>type = type;}
+\DoxyCodeLine{452         p-\/>src = src;}
+\DoxyCodeLine{453 }
+\DoxyCodeLine{454         \textcolor{keywordflow}{return} p;}
+\DoxyCodeLine{455     \}}
+\DoxyCodeLine{456 }
+\DoxyCodeLine{466     \textcolor{keyword}{struct }userPacket<uint8\_t>* createUserPacket(uint16\_t dst, uint16\_t src, uint8\_t* payload, uint32\_t payloadSize);}
+\DoxyCodeLine{467 }
+\DoxyCodeLine{474     \textcolor{keyword}{struct }userPacket<uint8\_t>* convertPacket(packet<uint8\_t>* p);}
+\DoxyCodeLine{475 }
+\DoxyCodeLine{484     \textcolor{keyword}{struct }packet<uint8\_t>* createPacket(uint8\_t* payload, uint8\_t payloadSize, uint8\_t extraSize);}
+\DoxyCodeLine{485 }
+\DoxyCodeLine{492     \textcolor{keyword}{struct }packet<uint8\_t>* createEmptyPacket(\textcolor{keywordtype}{size\_t} packetSize);}
+\DoxyCodeLine{493 }
+\DoxyCodeLine{500     \textcolor{keyword}{struct }packet<uint8\_t>* copyPacket(packet<uint8\_t>* p);}
+\DoxyCodeLine{501 }
+\DoxyCodeLine{508     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{509     \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_lora_mesher_a2d6e1298189108bbc07ff5621e4d667a}{deletePacket}}(packet<T>* p) \{}
+\DoxyCodeLine{510         Log.trace(F(\textcolor{stringliteral}{"{}Deleting packet"{}} CR));}
+\DoxyCodeLine{511         free(p);}
+\DoxyCodeLine{512     \}}
+\DoxyCodeLine{513 }
+\DoxyCodeLine{521     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{522     \textcolor{keywordtype}{void} setPackedForSend(packet<T>* p, uint8\_t priority) \{}
+\DoxyCodeLine{523         packetQueue<uint8\_t>* send = createPacketQueue(p, priority);}
+\DoxyCodeLine{524         ToSendPackets-\/>Add(send);}
+\DoxyCodeLine{525         \textcolor{comment}{//TODO: Using vTaskDelay to kill the packet inside LoraMesher}}
+\DoxyCodeLine{526     \}}
+\DoxyCodeLine{527 }
+\DoxyCodeLine{535     \textcolor{keyword}{template}<\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{536     \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{class_lora_mesher_ae12b570f2c65008f93704b2d2236e8f8}{getPayloadLength}}(packet<T>* p) \{}
+\DoxyCodeLine{537         \textcolor{keywordflow}{return} (p-\/>payloadSize -\/ getExtraLengthToPayload(p-\/>type)) / \textcolor{keyword}{sizeof}(T);}
+\DoxyCodeLine{538     \}}
+\DoxyCodeLine{539 }
+\DoxyCodeLine{545     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{546     \textcolor{keyword}{struct }packetQueue \{}
+\DoxyCodeLine{547         uint16\_t number\{0\};}
+\DoxyCodeLine{548         uint8\_t priority = DEFAULT\_PRIORITY;}
+\DoxyCodeLine{549         T* packet;}
+\DoxyCodeLine{550         packetQueue<T>* next;}
+\DoxyCodeLine{551     \};}
+\DoxyCodeLine{552 }
+\DoxyCodeLine{559     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{560     \textcolor{keyword}{static} \textcolor{keywordtype}{void} deletePacketQueueAndPacket(packetQueue<T>* pq) \{}
+\DoxyCodeLine{561         \mbox{\hyperlink{class_lora_mesher_a2d6e1298189108bbc07ff5621e4d667a}{deletePacket}}((packet<T>*) pq-\/>packet);}
+\DoxyCodeLine{562         deletePacketQueue(pq);}
+\DoxyCodeLine{563     \}}
+\DoxyCodeLine{564 }
+\DoxyCodeLine{571     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{572     \textcolor{keyword}{static} \textcolor{keywordtype}{void} deletePacketQueue(packetQueue<T>* pq) \{}
+\DoxyCodeLine{573         Log.trace(F(\textcolor{stringliteral}{"{}Deleting packet queue"{}} CR));}
+\DoxyCodeLine{574         \textcolor{keyword}{delete} pq;}
+\DoxyCodeLine{575     \}}
+\DoxyCodeLine{576 }
+\DoxyCodeLine{587     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{588     packetQueue<uint8\_t>* createPacketQueue(T* p, uint8\_t priority, uint16\_t number = 0) \{}
+\DoxyCodeLine{589         packetQueue<uint8\_t>* pq = \textcolor{keyword}{new} packetQueue<uint8\_t>();}
+\DoxyCodeLine{590         pq-\/>priority = priority;}
+\DoxyCodeLine{591         pq-\/>packet = (uint8\_t*) p;}
+\DoxyCodeLine{592         pq-\/>next = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{593         pq-\/>number = number;}
+\DoxyCodeLine{594         \textcolor{keywordflow}{return} pq;}
+\DoxyCodeLine{595     \}}
+\DoxyCodeLine{596 }
+\DoxyCodeLine{597     \textcolor{keyword}{class }PacketQueue \{}
+\DoxyCodeLine{598     \textcolor{keyword}{public}:}
+\DoxyCodeLine{604         \textcolor{keywordtype}{void} Add(packetQueue<uint8\_t>* pq);}
+\DoxyCodeLine{605 }
+\DoxyCodeLine{612         \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{613         packetQueue<T>* Pop() \{}
+\DoxyCodeLine{614             WaitAndDisable();}
+\DoxyCodeLine{615 }
+\DoxyCodeLine{616             \textcolor{keywordflow}{if} (first == \textcolor{keyword}{nullptr}) \{}
+\DoxyCodeLine{617                 Enable();}
+\DoxyCodeLine{618                 \textcolor{keywordflow}{return} \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{619             \}}
+\DoxyCodeLine{620 }
+\DoxyCodeLine{621             packetQueue<T>* firstCp = (packetQueue<T>*) first;}
+\DoxyCodeLine{622             first = first-\/>next;}
+\DoxyCodeLine{623 }
+\DoxyCodeLine{624             Enable();}
+\DoxyCodeLine{625             \textcolor{keywordflow}{return} firstCp;}
+\DoxyCodeLine{626         \}}
+\DoxyCodeLine{627 }
+\DoxyCodeLine{633         \textcolor{keywordtype}{size\_t} Size();}
+\DoxyCodeLine{634 }
+\DoxyCodeLine{639         \textcolor{keywordtype}{void} Clear();}
+\DoxyCodeLine{640 }
+\DoxyCodeLine{641     \textcolor{keyword}{private}:}
+\DoxyCodeLine{642         \textcolor{keywordtype}{bool}* enabled = \textcolor{keyword}{new} bool(\textcolor{keyword}{true});}
+\DoxyCodeLine{643         packetQueue<uint8\_t>* first = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{644 }
+\DoxyCodeLine{649         \textcolor{keywordtype}{void} WaitAndDisable();}
+\DoxyCodeLine{650 }
+\DoxyCodeLine{655         \textcolor{keywordtype}{void} Enable();}
+\DoxyCodeLine{656     \};}
+\DoxyCodeLine{657 }
+\DoxyCodeLine{658     PacketQueue* ReceivedUserPackets = \textcolor{keyword}{new} PacketQueue();}
+\DoxyCodeLine{659 }
+\DoxyCodeLine{660     PacketQueue* ReceivedPackets = \textcolor{keyword}{new} PacketQueue();}
+\DoxyCodeLine{661 }
+\DoxyCodeLine{662     PacketQueue* ToSendPackets = \textcolor{keyword}{new} PacketQueue();}
+\DoxyCodeLine{663 }
+\DoxyCodeLine{664 }
+\DoxyCodeLine{671     \textcolor{keywordtype}{void} processRoute(uint16\_t via, networkNode* node);}
+\DoxyCodeLine{672 }
+\DoxyCodeLine{678     \textcolor{keywordtype}{void} processRoute(packet<networkNode>* p);}
+\DoxyCodeLine{679 }
+\DoxyCodeLine{685     \textcolor{keywordtype}{void} processDataPacket(packetQueue<packet<\mbox{\hyperlink{structdata_packet}{dataPacket<uint8\_t>}}>>* pq);}
+\DoxyCodeLine{686 }
+\DoxyCodeLine{692     \textcolor{keywordtype}{void} processDataPacketForMe(packetQueue<packet<\mbox{\hyperlink{structdata_packet}{dataPacket<uint8\_t>}}>>* pq);}
+\DoxyCodeLine{693 }
+\DoxyCodeLine{698     \textcolor{keywordtype}{void} notifyUserReceivedPacket(packetQueue<userPacket<uint8\_t>>* pq);}
+\DoxyCodeLine{699 }
+\DoxyCodeLine{706     \textcolor{keywordtype}{void} addNodeToRoutingTable(networkNode* node, uint16\_t via);}
+\DoxyCodeLine{707 }
+\DoxyCodeLine{713     \textcolor{keyword}{struct }packet<uint8\_t>* createRoutingPacket();}
+\DoxyCodeLine{714 }
+\DoxyCodeLine{720     \textcolor{keywordtype}{void} sendPacket(packet<uint8\_t>* p);}
+\DoxyCodeLine{721 }
+\DoxyCodeLine{726     \textcolor{keywordtype}{void} sendPackets();}
+\DoxyCodeLine{727 }
+\DoxyCodeLine{735     \textcolor{keywordtype}{void} sendStartSequencePackets(uint16\_t destination, uint8\_t seq\_id, uint16\_t num\_packets);}
+\DoxyCodeLine{736 }
+\DoxyCodeLine{737 }
+\DoxyCodeLine{746     packetQueue<uint8\_t>* getStartSequencePacketQueue(uint16\_t destination, uint8\_t seq\_id, uint16\_t num\_packets);}
+\DoxyCodeLine{747 }
+\DoxyCodeLine{755     \textcolor{keywordtype}{void} sendAckPacket(uint16\_t destination, uint8\_t seq\_id, uint16\_t seq\_num);}
+\DoxyCodeLine{756 }
+\DoxyCodeLine{764     \textcolor{keywordtype}{void} sendLostPacket(uint16\_t destination, uint8\_t seq\_id, uint16\_t seq\_num);}
+\DoxyCodeLine{765 }
+\DoxyCodeLine{773     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{774     \textcolor{keywordtype}{size\_t} getPacketLength(packet<T>* p) \{ \textcolor{keywordflow}{return} \textcolor{keyword}{sizeof}(LoraMesher::packet<T>) + p-\/>payloadSize; \}}
+\DoxyCodeLine{775 }
+\DoxyCodeLine{782     uint8\_t getExtraLengthToPayload(uint8\_t type);}
+\DoxyCodeLine{783 }
+\DoxyCodeLine{790     uint8\_t getMaximumPayloadLength(uint8\_t type);}
+\DoxyCodeLine{791 }
+\DoxyCodeLine{799     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{800     \textcolor{keywordtype}{size\_t} getPacketPayloadLength(packet<T>* p) \{ \textcolor{keywordflow}{return} p-\/>payloadSize -\/ getExtraLengthToPayload(p-\/>type); \}}
+\DoxyCodeLine{801 }
+\DoxyCodeLine{809     \textcolor{keywordtype}{bool} hasDataPacket(uint8\_t type);}
+\DoxyCodeLine{810 }
+\DoxyCodeLine{818     \textcolor{keywordtype}{bool} hasControlPacket(uint8\_t type);}
+\DoxyCodeLine{819 }
+\DoxyCodeLine{827     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{828     \textcolor{keywordtype}{void} printPacket(packet<T>* p, \textcolor{keywordtype}{bool} received) \{}
+\DoxyCodeLine{829         Log.verbose(F(\textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\(\backslash\)n"{}}));}
+\DoxyCodeLine{830         Log.verbose(F(\textcolor{stringliteral}{"{}Current Packet: \%s\(\backslash\)n"{}}), received ? \textcolor{stringliteral}{"{}Received"{}} : \textcolor{stringliteral}{"{}Created"{}});}
+\DoxyCodeLine{831         Log.verbose(F(\textcolor{stringliteral}{"{}Destination: \%X\(\backslash\)n"{}}), p-\/>dst);}
+\DoxyCodeLine{832         Log.verbose(F(\textcolor{stringliteral}{"{}Source: \%X\(\backslash\)n"{}}), p-\/>src);}
+\DoxyCodeLine{833         Log.verbose(F(\textcolor{stringliteral}{"{}Type: \%d\(\backslash\)n"{}}), p-\/>type);}
+\DoxyCodeLine{834         Log.verbose(F(\textcolor{stringliteral}{"{}-\/-\/-\/-\/Packet of size \%d bytes-\/-\/-\/-\/\(\backslash\)n"{}}), getPacketLength(p));}
+\DoxyCodeLine{835         \textcolor{keywordflow}{switch} (p-\/>type) \{}
+\DoxyCodeLine{836             \textcolor{keywordflow}{case} HELLO\_P:}
+\DoxyCodeLine{837                 \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < \mbox{\hyperlink{class_lora_mesher_ae12b570f2c65008f93704b2d2236e8f8}{getPayloadLength}}((packet<networkNode>*) p); i++)}
+\DoxyCodeLine{838                     Log.verbose(F(\textcolor{stringliteral}{"{}\%d -\/>(\%u) Address: \%X -\/ Metric: \%d"{}} CR), i, \&p-\/>payload[i], ((networkNode*) \&p-\/>payload[i])-\/>address, ((networkNode*) \&p-\/>payload[i])-\/>metric);}
+\DoxyCodeLine{839 }
+\DoxyCodeLine{840         \}}
+\DoxyCodeLine{841 }
+\DoxyCodeLine{842         Log.verbose(F(\textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\(\backslash\)n"{}}));}
+\DoxyCodeLine{843     \}}
+\DoxyCodeLine{844 }
+\DoxyCodeLine{851     \textcolor{keywordtype}{void} printHeaderPacket(packet<uint8\_t>* p, String title);}
+\DoxyCodeLine{852 }
+\DoxyCodeLine{862     \textcolor{keywordtype}{bool} sendPacketSequence(uint16\_t destination, uint8\_t seq\_id, uint16\_t seq\_num);}
+\DoxyCodeLine{863 }
+\DoxyCodeLine{869     \textcolor{keywordtype}{void} processLargePayloadPacket(packetQueue<packet<\mbox{\hyperlink{structdata_packet}{dataPacket<uint8\_t>}}>>* pq);}
+\DoxyCodeLine{870 }
+\DoxyCodeLine{878     \textcolor{keywordtype}{void} processSyncPacket(uint16\_t source, uint8\_t seq\_id, uint16\_t seq\_num);}
+\DoxyCodeLine{879 }
+\DoxyCodeLine{887     \textcolor{keywordtype}{void} addAck(uint16\_t source, uint8\_t seq\_id, uint16\_t seq\_num);}
+\DoxyCodeLine{888 }
+\DoxyCodeLine{893     uint8\_t sequence\_id = 0;}
+\DoxyCodeLine{894 }
+\DoxyCodeLine{900     uint8\_t getSequenceId();}
+\DoxyCodeLine{901 }
+\DoxyCodeLine{906     \textcolor{keywordtype}{void} managerSendQueue();}
+\DoxyCodeLine{907 }
+\DoxyCodeLine{912     \textcolor{keywordtype}{void} managerReceivedQueue();}
+\DoxyCodeLine{913 }
+\DoxyCodeLine{918     \textcolor{keyword}{struct }sequencePacketConfig \{}
+\DoxyCodeLine{919         \textcolor{comment}{//Identification is Sequence Id and Source address}}
+\DoxyCodeLine{920         uint8\_t seq\_id; \textcolor{comment}{//Sequence Id}}
+\DoxyCodeLine{921         uint16\_t source; \textcolor{comment}{//Source Address}}
+\DoxyCodeLine{922 }
+\DoxyCodeLine{923         uint16\_t number; \textcolor{comment}{//Number of packets of the sequence}}
+\DoxyCodeLine{924         uint8\_t firstAckReceived\{0\}; \textcolor{comment}{//If this value is set to 0, there has not been received any ack.}}
+\DoxyCodeLine{925         uint16\_t lastAck\{0\}; \textcolor{comment}{//Last ack received/send. 0 to n ACKs where n is the number of packets. }}
+\DoxyCodeLine{926         \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} timeout\{0\};; \textcolor{comment}{//Timeout of the sequence}}
+\DoxyCodeLine{927         uint32\_t numberOfTimeouts\{0\}; \textcolor{comment}{//Number of timeouts that has been occurred}}
+\DoxyCodeLine{928 }
+\DoxyCodeLine{929         sequencePacketConfig(uint8\_t seq\_id, uint16\_t source, uint16\_t number) : seq\_id(seq\_id), source(source), number(number) \{\};}
+\DoxyCodeLine{930     \};}
+\DoxyCodeLine{931 }
+\DoxyCodeLine{936     \textcolor{keyword}{struct }listConfiguration \{}
+\DoxyCodeLine{937         sequencePacketConfig* config;}
+\DoxyCodeLine{938         LinkedList<packetQueue<uint8\_t>>* list;}
+\DoxyCodeLine{939     \};}
+\DoxyCodeLine{940 }
+\DoxyCodeLine{946     \textcolor{keywordtype}{void} joinPacketsAndNotifyUser(listConfiguration* listConfig);}
+\DoxyCodeLine{947 }
+\DoxyCodeLine{955     \textcolor{keywordtype}{void} resetTimeout(LinkedList<listConfiguration>* queue, uint8\_t seq\_id, uint16\_t source);}
+\DoxyCodeLine{956 }
+\DoxyCodeLine{962     \textcolor{keywordtype}{void} resetTimeout(sequencePacketConfig* configPacket);}
+\DoxyCodeLine{963 }
+\DoxyCodeLine{969     \textcolor{keywordtype}{void} addTimeoutTime(sequencePacketConfig* configPacket);}
+\DoxyCodeLine{970 }
+\DoxyCodeLine{976     \textcolor{keywordtype}{void} clearLinkedList(listConfiguration* listConfig);}
+\DoxyCodeLine{977 }
+\DoxyCodeLine{984     \textcolor{keywordtype}{void} findAndClearLinkedList(LinkedList<listConfiguration>* queue, listConfiguration* listConfig);}
+\DoxyCodeLine{985 }
+\DoxyCodeLine{994     listConfiguration* findSequenceList(LinkedList<listConfiguration>* queue, uint8\_t seq\_id, uint16\_t source);}
+\DoxyCodeLine{995 }
+\DoxyCodeLine{1003     packetQueue<uint8\_t>* findPacketQueue(LinkedList<packetQueue<uint8\_t>>* queue, uint8\_t num);}
+\DoxyCodeLine{1004 }
+\DoxyCodeLine{1011     LinkedList<listConfiguration>* q\_WSP = \textcolor{keyword}{new} LinkedList<listConfiguration>();}
+\DoxyCodeLine{1012 }
+\DoxyCodeLine{1017     LinkedList<listConfiguration>* q\_WRP = \textcolor{keyword}{new} LinkedList<listConfiguration>();}
+\DoxyCodeLine{1018 }
+\DoxyCodeLine{1019 \};}
+\DoxyCodeLine{1020 }
+\DoxyCodeLine{1021 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

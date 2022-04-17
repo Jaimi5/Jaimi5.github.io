@@ -1,0 +1,47 @@
+\hypertarget{_counter_and_display_2src_2display_8h_source}{}\doxysection{display.\+h}
+\label{_counter_and_display_2src_2display_8h_source}\index{C:/Users/janm2/Documents/PlatformIO/Projects/GpsAndDisplay/.pio/libdeps/ttgo-\/t-\/beam/LoRaMesher/examples/CounterAndDisplay/src/display.h@{C:/Users/janm2/Documents/PlatformIO/Projects/GpsAndDisplay/.pio/libdeps/ttgo-\/t-\/beam/LoRaMesher/examples/CounterAndDisplay/src/display.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 }
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <SPI.h>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <Wire.h>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <Adafruit\_GFX.h>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <Adafruit\_SSD1306.h>}}
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#define SCREEN\_WIDTH 128 }\textcolor{comment}{// OLED display width, in pixels}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#define SCREEN\_HEIGHT 64 }\textcolor{comment}{// OLED display height, in pixels}}
+\DoxyCodeLine{10 }
+\DoxyCodeLine{11 \textcolor{preprocessor}{\#define OLED\_RESET     -\/1 }\textcolor{comment}{// Reset pin \# (or -\/1 if sharing Arduino reset pin)}}
+\DoxyCodeLine{12 }
+\DoxyCodeLine{13 \textcolor{keyword}{class }\mbox{\hyperlink{class_display}{Display}} \{}
+\DoxyCodeLine{14 \textcolor{keyword}{public}:}
+\DoxyCodeLine{15     \mbox{\hyperlink{class_display}{Display}}();}
+\DoxyCodeLine{16     \textcolor{keywordtype}{void} initDisplay();}
+\DoxyCodeLine{17     \textcolor{keywordtype}{void} changeLineOne(String str);}
+\DoxyCodeLine{18     \textcolor{keywordtype}{void} changeLineTwo(String str);}
+\DoxyCodeLine{19     \textcolor{keywordtype}{void} changeLineThree(String str);}
+\DoxyCodeLine{20     \textcolor{keywordtype}{void} changeLineFour();}
+\DoxyCodeLine{21     \textcolor{keywordtype}{void} drawDisplay();}
+\DoxyCodeLine{22     \textcolor{keywordtype}{void} changeRoutingText(String text, \textcolor{keywordtype}{int} position);}
+\DoxyCodeLine{23     \textcolor{keywordtype}{void} changeSizeRouting(\textcolor{keywordtype}{int} size);}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{keyword}{private}:}
+\DoxyCodeLine{26     Adafruit\_SSD1306 display = Adafruit\_SSD1306(SCREEN\_WIDTH, SCREEN\_HEIGHT);}
+\DoxyCodeLine{27     TaskHandle\_t Display\_TaskHandle = NULL;}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29     \textcolor{keywordtype}{void} changeLine(String str, \textcolor{keywordtype}{int} pos, \textcolor{keywordtype}{int}\& x, \textcolor{keywordtype}{int}\& minX, \textcolor{keywordtype}{int} size, \textcolor{keywordtype}{bool}\& move);}
+\DoxyCodeLine{30     \textcolor{keywordtype}{void} printLine(String str, \textcolor{keywordtype}{int}\& x, \textcolor{keywordtype}{int} y, \textcolor{keywordtype}{int} size, \textcolor{keywordtype}{int} minX, \textcolor{keywordtype}{bool} move);}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32     String displayText[3] = \{\textcolor{stringliteral}{"{}LoRa Mesher"{}}, \textcolor{stringliteral}{"{}LoRa Mesher"{}}, \textcolor{stringliteral}{"{}LoRa Mesher"{}}\};}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34     String routingText[25];}
+\DoxyCodeLine{35     \textcolor{keywordtype}{int} routingSize = 0;}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     \textcolor{keywordtype}{bool} move1, move2, move3, move4, move5 = \textcolor{keyword}{true};}
+\DoxyCodeLine{38     \textcolor{keywordtype}{int} x1, minX1, x2, minX2, x3, minX3, x4, minX4, x5, minX5;}
+\DoxyCodeLine{39 \};}
+\DoxyCodeLine{40 }
+\DoxyCodeLine{41 \textcolor{keyword}{extern} \mbox{\hyperlink{class_display}{Display}} Screen;}
+
+\end{DoxyCode}

@@ -1,0 +1,174 @@
+\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md1}{}\doxysection{Introduction}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md1}
+The Lo\+Ra\+Mesher library implements a distance-\/vector routing protocol for communicating messages among Lo\+Ra nodes. For the interaction with the Lo\+Ra radio chip, we leverage Radio\+Lib, a versatile communication library which supports the SX127X Lo\+Ra series module available on the hardware we used, among others.\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md2}{}\doxysection{Dependencies}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md2}
+You can check {\ttfamily library.\+json} for more details. Basically, we use a modded version of \href{https://github.com/jgromes/RadioLib}{\texttt{ Radiolib}} that supports class methods as callbacks and \href{https://freertos.org/index.html}{\texttt{ Free\+RTOS}} for scheduling maintenance tasks.\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md3}{}\doxysection{Configure Lo\+Ra\+Mesher with Platform\+IO and Visual Studio Code}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md3}
+
+\begin{DoxyEnumerate}
+\item Download Visual Studio Code.
+\item Download Platform\+IO inside Visual Studio Code.
+\item Clone the \mbox{\hyperlink{class_lora_mesher}{Lora\+Mesher}} repository.
+\item Go to Platform\+IO Home, click on the Projects button, then on \char`\"{}\+Add Existing\char`\"{}, and find the examples/beta-\/sample source in the files.
+\item Select the examples/beta-\/example project.
+\item Build the project with Platform\+IO.
+\item Upload the project to the specified Lo\+Ra microcontroller. In our case, we use the TTGO T-\/\+Beam module.
+\end{DoxyEnumerate}\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md4}{}\doxysection{Lo\+Ra\+Mesher Example}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md4}
+There is, in the source files of this first implementation, an example to test the new functionalities. This example is an implementation of a counter, sending a broadcast message every 10 seconds. To make it easier to understand, we will remove additional functions that are not necessary to make the microcontroller work with the Lo\+Ra\+Mesher library.\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md5}{}\doxysubsection{Defining the data type and the data counter}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md5}
+As a proof of concept, we will be sending a numeric counter over Lo\+Ra. Its value will be incremented every 10 seconds, then te packet will be transmitted. To start, we need to implement the type of data we will use.
+
+In this case, we will only send a {\ttfamily uint32\+\_\+t}, which is the counter itself.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{uint32\_t dataCounter = 0;}
+\DoxyCodeLine{struct dataPacket \{}
+\DoxyCodeLine{  uint32\_t counter = 0;}
+\DoxyCodeLine{\};}
+\DoxyCodeLine{}
+\DoxyCodeLine{dataPacket* helloPacket = new dataPacket;}
+
+\end{DoxyCode}
+\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md6}{}\doxysubsection{Lo\+Ra\+Mesh Initialization}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md6}
+To initialize the new implementation, Lo\+Ra\+Mesher must be initialized with a function call. This function will be notified every time the microcontroller receives an incoming packet for the user.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{Serial.begin(115200); //This configuration can be changed}
+\DoxyCodeLine{Serial.println("{}initBoard"{});}
+\DoxyCodeLine{}
+\DoxyCodeLine{//Get the LoraMesher instance}
+\DoxyCodeLine{LoraMesher\& radio = LoraMesher::getInstance();}
+\DoxyCodeLine{}
+\DoxyCodeLine{//Initialize the LoraMesher with a processReceivedPackets function}
+\DoxyCodeLine{radio.init(processReceivedPackets);}
+
+\end{DoxyCode}
+
+
+We can see that, when starting a new instance of Lo\+Ra\+Mesher, we need to pass through a function.\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md7}{}\doxysubsection{Received packets function}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md7}
+The function that gets a notification each time the library receives a packet for the user looks like this one\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{/**}
+\DoxyCodeLine{ * @brief Function that process the received packets}
+\DoxyCodeLine{ *}
+\DoxyCodeLine{ */}
+\DoxyCodeLine{void processReceivedPackets(void*) \{}
+\DoxyCodeLine{    for (;;) \{}
+\DoxyCodeLine{        /* Wait for the notification of processReceivedPackets and enter blocking */}
+\DoxyCodeLine{        ulTaskNotifyTake(pdPASS, portMAX\_DELAY);}
+\DoxyCodeLine{}
+\DoxyCodeLine{        //Iterate through all the packets inside the Received User Packets FiFo}
+\DoxyCodeLine{        while (radio.getReceivedQueueSize() > 0) \{}
+\DoxyCodeLine{            Log.trace(F("{}ReceivedUserData\_TaskHandle notify received"{} CR));}
+\DoxyCodeLine{            Log.trace(F("{}Queue receiveUserData size: \%d"{} CR), radio.getReceivedQueueSize());}
+\DoxyCodeLine{}
+\DoxyCodeLine{            //Get the first element inside the Received User Packets FiFo}
+\DoxyCodeLine{            LoraMesher::userPacket<dataPacket>* packet = radio.getNextUserPacket<dataPacket>();}
+\DoxyCodeLine{}
+\DoxyCodeLine{            //Print the data packet}
+\DoxyCodeLine{            printDataPacket(packet);}
+\DoxyCodeLine{}
+\DoxyCodeLine{            //Delete the packet when used. It is very important to call this function to release the memory of the packet.}
+\DoxyCodeLine{            radio.deletePacket(packet);}
+\DoxyCodeLine{}
+\DoxyCodeLine{        \}}
+\DoxyCodeLine{    \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+There are some important things we need to be aware of\+:
+
+
+\begin{DoxyEnumerate}
+\item This function should have a {\ttfamily void$\ast$} in the parameters.
+\item The function should contain an endless loop.
+\item Inside the loop, it is mandatory to have the {\ttfamily ul\+Task\+Notify\+Take(pd\+PASS,port\+MAX\+\_\+\+DELAY)} or equivalent. This function allows the library to notify the function to process pending packets.
+\item All the packets are stored inside a private queue.
+\item There is a function to get the size of the queue {\ttfamily radio.\+get\+Received\+Queue\+Size()}.
+\item You can get the first element with {\ttfamily radio.\+get\+Next\+User\+Packet\texorpdfstring{$<$}{<}T\texorpdfstring{$>$}{>}()} where T is the type of your data.
+\item IMPORTANT!!! Every time you call Pop, you need to be sure to call {\ttfamily radio.\+delete\+Packet(packet)}. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.
+\end{DoxyEnumerate}\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md8}{}\doxysubsection{User data packet}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md8}
+In this section we will show you what there are inside a {\ttfamily user\+Packet}. 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{struct userPacket \{}
+\DoxyCodeLine{    uint16\_t dst; //Destination address, in this case it should be or local address or BROADCAST\_ADDR}
+\DoxyCodeLine{    uint16\_t src; //Source address}
+\DoxyCodeLine{    uint32\_t payloadSize = 0; //Payload size in bytes}
+\DoxyCodeLine{    T payload[]; //Payload}
+\DoxyCodeLine{\};}
+
+\end{DoxyCode}
+
+
+Functionalities to use after getting the packet with {\ttfamily \mbox{\hyperlink{struct_lora_mesher_1_1user_packet}{Lora\+Mesher\+::user\+Packet}}\texorpdfstring{$<$}{<}T\texorpdfstring{$>$}{>}$\ast$ user\+Packet = radio.\+get\+Next\+User\+Packet\texorpdfstring{$<$}{<}T\texorpdfstring{$>$}{>}()}\+:
+\begin{DoxyEnumerate}
+\item {\ttfamily radio.\+get\+Payload\+Length(user\+Packet)} it will get you the payload size in number of T
+\item {\ttfamily radio.\+delete\+Packet(user\+Packet)} it will release the memory allocated for this packet.
+\end{DoxyEnumerate}\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md9}{}\doxysubsection{Send data packet function}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md9}
+In this section we will present how you can create and send packets. in this example we will use the {\ttfamily \mbox{\hyperlink{structdata_packet}{data\+Packet}}} data structure.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{void loop() \{}
+\DoxyCodeLine{      helloPacket-\/>counter = dataCounter++;}
+\DoxyCodeLine{}
+\DoxyCodeLine{      //Create packet and send it.}
+\DoxyCodeLine{       radio.createPacketAndSend(BROADCAST\_ADDR, helloPacket, 1);}
+\DoxyCodeLine{}
+\DoxyCodeLine{      //Wait 10 seconds to send the next packet}
+\DoxyCodeLine{      vTaskDelay(10000 / portTICK\_PERIOD\_MS);}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+In the previous figure we can see that we are using the hello\+Packet, we add the counter inside it, and we create and send the packet using the Lo\+Ra\+Mesher.
+
+The most important part of this piece of code is the function that we call in the {\ttfamily radio.\+create\+Packet\+And\+Send()}\+:
+
+
+\begin{DoxyEnumerate}
+\item The first parameter is the destination, in this case the broadcast address.
+\item And finally, the hello\+Packet (the packet we created) and the number of elements we are sending, in this case only 1 \mbox{\hyperlink{structdata_packet}{data\+Packet}}.
+\end{DoxyEnumerate}\hypertarget{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md10}{}\doxysubsection{Print packet example}\label{md__c___users_janm2__documents__platform_i_o__projects__gps_and_display__pio_libdeps_ttgo_t_beam__lo_ra_mesher__r_e_a_d_m_e_autotoc_md10}
+When receiving the packet, we need to understand what the Queue will return us. For this reason, in the next subsection, we will explain how to implement a simple packet processing.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{/**}
+\DoxyCodeLine{ * @brief Print the counter of the packet}
+\DoxyCodeLine{ *}
+\DoxyCodeLine{ * @param data}
+\DoxyCodeLine{ */}
+\DoxyCodeLine{void printPacket(dataPacket data) \{}
+\DoxyCodeLine{  Log.verbose(F("{}Hello Counter received n \%X"{} CR), data.counter);}
+\DoxyCodeLine{\}}
+\DoxyCodeLine{}
+\DoxyCodeLine{/**}
+\DoxyCodeLine{ * @brief Iterate through the payload of the packet and print the counter of the packet}
+\DoxyCodeLine{ *}
+\DoxyCodeLine{ * @param packet}
+\DoxyCodeLine{ */}
+\DoxyCodeLine{void printDataPacket(LoraMesher::userPacket<dataPacket>* packet) \{}
+\DoxyCodeLine{    //Get the payload to iterate through it}
+\DoxyCodeLine{    dataPacket* dPacket = packet-\/>payload;}
+\DoxyCodeLine{    size\_t payloadLength = radio.getPayloadLength(packet);}
+\DoxyCodeLine{}
+\DoxyCodeLine{    for (size\_t i = 0; i < payloadLength; i++) \{}
+\DoxyCodeLine{        //Print the packet}
+\DoxyCodeLine{        printPacket(dPacket[i]);}
+\DoxyCodeLine{    \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+
+\begin{DoxyEnumerate}
+\item After receiving the packet in the {\ttfamily process\+Received\+Packets()} function, we call the {\ttfamily print\+Data\+Packet()} function.
+\item We need to get the payload of the packet using {\ttfamily packet-\/\texorpdfstring{$>$}{>}payload}.
+\item We iterate through the {\ttfamily radio.\+get\+Payload\+Length(packet)}. This will let us know how big the payload is, in data\+Packets types, for a given packet. In our case, we always send only one \mbox{\hyperlink{structdata_packet}{data\+Packet}}.
+\item Get the payload and call the {\ttfamily print\+Packet(d\+Packet\mbox{[}i\mbox{]})} function, that will print the counter received. 
+\end{DoxyEnumerate}
