@@ -1,6 +1,6 @@
 var NAVTREEINDEX0 =
 {
-"_examples.html":[1],
+"_list_of_examples.html":[1],
 "annotated.html":[2,0],
 "class_lora_mesher.html":[2,0,0],
 "class_lora_mesher.html#a129d8a250d3b7dce85f735d6313fb256":[2,0,0,15],

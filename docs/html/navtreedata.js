@@ -36,7 +36,7 @@ var NAVTREE =
         [ "Configure LoRaMesher with PlatformIO and Visual Studio Code", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md0", null ]
       ] ]
     ] ],
-    [ "Examples", "_examples.html", "_examples" ],
+    [ "Examples", "_list_of_examples.html", "_list_of_examples" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -54,7 +54,7 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_examples.html"
+"_list_of_examples.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

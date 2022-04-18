@@ -19,7 +19,7 @@ You can check `library.json` for more details. Basically, we use a modded versio
 ## Quick Links
 Documentation for most common methods can be found in its reference page. \n
 Configuration of the library in \ref Configuration. \n
-Some examples of usage of the library in \ref Examples.
+Some examples of usage of the library in \ref ListOfExamples.
 
 ## Used technologies
 - [RadioLib](https://github.com/jgromes/RadioLib)
@@ -36,7 +36,7 @@ Copyright (c) 2022 Joan Miquel Solé
 
 
 
-\page Examples Examples
+\page ListOfExamples Examples
 
 In this page you will see a list of examples on how to use the LoRa Mesher library:
 - \subpage counter
