@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['lora_20mesher_20library_0',['LoRa Mesher Library',['../index.html',1,'']]],
-  ['loramesher_1',['LoraMesher',['../class_lora_mesher.html',1,'']]]
+  ['init_0',['init',['../class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca',1,'LoraMesher']]]
 ];

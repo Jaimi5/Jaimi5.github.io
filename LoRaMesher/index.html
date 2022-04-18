@@ -97,23 +97,23 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><ul><li class="level2"><a href="#autotoc_md1">Introduction</a></li>
-<li class="level2"><a href="#autotoc_md2">Dependencies</a></li>
-<li class="level2"><a href="#autotoc_md3">Currently Supported Protocols</a></li>
-<li class="level2"><a href="#autotoc_md4">Quick Links</a></li>
-<li class="level2"><a href="#autotoc_md5">Used technologies</a></li>
-<li class="level2"><a href="#autotoc_md6">See also</a></li>
-<li class="level2"><a href="#autotoc_md7">Copyright</a></li>
+<ul><ul><li class="level2"><a href="#autotoc_md11">Introduction</a></li>
+<li class="level2"><a href="#autotoc_md12">Dependencies</a></li>
+<li class="level2"><a href="#autotoc_md13">Currently Supported Protocols</a></li>
+<li class="level2"><a href="#autotoc_md14">Quick Links</a></li>
+<li class="level2"><a href="#autotoc_md15">Used technologies</a></li>
+<li class="level2"><a href="#autotoc_md16">See also</a></li>
+<li class="level2"><a href="#autotoc_md17">Copyright</a></li>
 </ul>
 </ul>
 </div>
-<div class="textblock"><h2><a class="anchor" id="autotoc_md1"></a>
+<div class="textblock"><h2><a class="anchor" id="autotoc_md11"></a>
 Introduction</h2>
 <p >The LoRaMesher library implements a distance-vector routing protocol for communicating messages among LoRa nodes. For the interaction with the LoRa radio chip, we leverage RadioLib, a versatile communication library which supports the SX127X LoRa series module available on the hardware we used, among others.</p>
-<h2><a class="anchor" id="autotoc_md2"></a>
+<h2><a class="anchor" id="autotoc_md12"></a>
 Dependencies</h2>
 <p >You can check <code>library.json</code> for more details. Basically, we use a modded version of <a href="https://github.com/jgromes/RadioLib">Radiolib</a> that supports class methods as callbacks and <a href="https://freertos.org/index.html">FreeRTOS</a> for scheduling maintenance tasks.</p>
-<h2><a class="anchor" id="autotoc_md3"></a>
+<h2><a class="anchor" id="autotoc_md13"></a>
 Currently Supported Protocols</h2>
 <ul>
 <li>Finding nodes using a simple routing protocol</li>
@@ -121,12 +121,12 @@ Currently Supported Protocols</h2>
 <li>Send reliable messages. It is accomplish sending ACK and other configuration packets inside LoRa Mesher</li>
 <li>Send large payloads. Since we cannot send packets larger than 222 bytes, we divide the payload and send reliable messages until is all sent/received</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md4"></a>
+<h2><a class="anchor" id="autotoc_md14"></a>
 Quick Links</h2>
 <p >Documentation for most common methods can be found in its reference page. <br  />
-Configuration of the library in <a class="el" href="md__lo_ra_mesher__r_e_a_d_m_e.html#Configuration">Configuration</a>. <br  />
+Configuration of the library in Configuration. <br  />
 Some examples of usage of the library in <a class="el" href="_list_of_examples.html">Examples</a>.</p>
-<h2><a class="anchor" id="autotoc_md5"></a>
+<h2><a class="anchor" id="autotoc_md15"></a>
 Used technologies</h2>
 <ul>
 <li><a href="https://github.com/jgromes/RadioLib">RadioLib</a></li>
@@ -134,10 +134,10 @@ Used technologies</h2>
 <li><a href="https://doxygen.nl">Doxygen</a></li>
 <li><a href="https://github.com/jothepro/doxygen-awesome-css">Doxygen Awesome</a></li>
 </ul>
-<h2><a class="anchor" id="autotoc_md6"></a>
+<h2><a class="anchor" id="autotoc_md16"></a>
 See also</h2>
 <p ><a href="https://github.com/LoraMesher/LoraMesher">https://github.com/LoraMesher/LoraMesher</a></p>
-<h2><a class="anchor" id="autotoc_md7"></a>
+<h2><a class="anchor" id="autotoc_md17"></a>
 Copyright</h2>
 <p >Copyright (c) 2022 Joan Miquel Solé </p>
 </div></div><!-- PageDoc -->

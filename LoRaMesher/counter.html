@@ -97,19 +97,19 @@ $(document).ready(function(){initNavTree('counter.html',''); initResizable(); })
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><ul><ul><li class="level3"><a href="#autotoc_md8">Defining the data type and the data counter</a></li>
-<li class="level3"><a href="#autotoc_md9">LoRaMesh Initialization</a></li>
-<li class="level3"><a href="#autotoc_md10">Received packets function</a></li>
-<li class="level3"><a href="#autotoc_md11">User data packet</a></li>
-<li class="level3"><a href="#autotoc_md12">Send data packet function</a></li>
-<li class="level3"><a href="#autotoc_md13">Print packet example</a></li>
-<li class="level3"><a href="#autotoc_md14">Source code</a></li>
+<ul><ul><ul><li class="level3"><a href="#autotoc_md18">Defining the data type and the data counter</a></li>
+<li class="level3"><a href="#autotoc_md19">LoRaMesh Initialization</a></li>
+<li class="level3"><a href="#autotoc_md20">Received packets function</a></li>
+<li class="level3"><a href="#autotoc_md21">User data packet</a></li>
+<li class="level3"><a href="#autotoc_md22">Send data packet function</a></li>
+<li class="level3"><a href="#autotoc_md23">Print packet example</a></li>
+<li class="level3"><a href="#autotoc_md24">Source code</a></li>
 </ul>
 </ul>
 </ul>
 </div>
 <div class="textblock"><p >There is, in the source files of this first implementation, an example to test the new functionalities. This example is an implementation of a counter, sending a broadcast message every 10 seconds. To make it easier to understand, we will remove additional functions that are not necessary to make the microcontroller work with the LoRaMesher library.</p>
-<h3><a class="anchor" id="autotoc_md8"></a>
+<h3><a class="anchor" id="autotoc_md18"></a>
 Defining the data type and the data counter</h3>
 <p >As a proof of concept, we will be sending a numeric counter over LoRa. Its value will be incremented every 10 seconds, then te packet will be transmitted. To start, we need to implement the type of data we will use.</p>
 <p >In this case, we will only send a <code>uint32_t</code>, which is the counter itself.</p>
@@ -119,7 +119,7 @@ Defining the data type and the data counter</h3>
 <div class="line">};</div>
 <div class="line"> </div>
 <div class="line">dataPacket* helloPacket = new dataPacket;</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md9"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md19"></a>
 LoRaMesh Initialization</h3>
 <p >To initialize the new implementation, LoRaMesher must be initialized with a function call. This function will be notified every time the microcontroller receives an incoming packet for the user.</p>
 <div class="fragment"><div class="line">Serial.begin(115200); //This configuration can be changed</div>
@@ -131,7 +131,7 @@ LoRaMesh Initialization</h3>
 <div class="line">//Initialize the LoraMesher with a processReceivedPackets function</div>
 <div class="line">radio.init(processReceivedPackets);</div>
 </div><!-- fragment --><p >We can see that, when starting a new instance of LoRaMesher, we need to pass through a function.</p>
-<h3><a class="anchor" id="autotoc_md10"></a>
+<h3><a class="anchor" id="autotoc_md20"></a>
 Received packets function</h3>
 <p >The function that gets a notification each time the library receives a packet for the user looks like this one:</p>
 <div class="fragment"><div class="line">/**</div>
@@ -170,7 +170,7 @@ Received packets function</h3>
 <li>You can get the first element with <code>radio.getNextUserPacket&lt;T&gt;()</code> where T is the type of your data.</li>
 <li>IMPORTANT!!! Every time you call Pop, you need to be sure to call <code>radio.deletePacket(packet)</code>. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md11"></a>
+<h3><a class="anchor" id="autotoc_md21"></a>
 User data packet</h3>
 <p >In this section we will show you what there are inside a <code>userPacket</code>. </p><div class="fragment"><div class="line">struct userPacket {</div>
 <div class="line">    uint16_t dst; //Destination address, in this case it should be or local address or BROADCAST_ADDR</div>
@@ -178,11 +178,11 @@ User data packet</h3>
 <div class="line">    uint32_t payloadSize = 0; //Payload size in bytes</div>
 <div class="line">    T payload[]; //Payload</div>
 <div class="line">};</div>
-</div><!-- fragment --><p >Functionalities to use after getting the packet with <code><a class="el" href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket</a>&lt;T&gt;* userPacket = radio.getNextUserPacket&lt;T&gt;()</code>:</p><ol type="1">
+</div><!-- fragment --><p >Functionalities to use after getting the packet with <code><a class="el" href="struct_lora_mesher_1_1user_packet.html" title="User packet, it is used to send the packet to the user.">LoraMesher::userPacket</a>&lt;T&gt;* userPacket = radio.getNextUserPacket&lt;T&gt;()</code>:</p><ol type="1">
 <li><code>radio.getPayloadLength(userPacket)</code> it will get you the payload size in number of T</li>
 <li><code>radio.deletePacket(userPacket)</code> it will release the memory allocated for this packet.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md12"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 Send data packet function</h3>
 <p >In this section we will present how you can create and send packets. in this example we will use the <code>dataPacket</code> data structure.</p>
 <div class="fragment"><div class="line">void loop() {</div>
@@ -200,7 +200,7 @@ Send data packet function</h3>
 <li>The first parameter is the destination, in this case the broadcast address.</li>
 <li>And finally, the helloPacket (the packet we created) and the number of elements we are sending, in this case only 1 dataPacket.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md13"></a>
+<h3><a class="anchor" id="autotoc_md23"></a>
 Print packet example</h3>
 <p >When receiving the packet, we need to understand what the Queue will return us. For this reason, in the next subsection, we will explain how to implement a simple packet processing.</p>
 <div class="fragment"><div class="line">/**</div>
@@ -233,7 +233,7 @@ Print packet example</h3>
 <li>We iterate through the <code>radio.getPayloadLength(packet)</code>. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.</li>
 <li>Get the payload and call the <code>printPacket(dPacket[i])</code> function, that will print the counter received.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md14"></a>
+<h3><a class="anchor" id="autotoc_md24"></a>
 Source code</h3>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;Arduino.h&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;loramesher.h&quot;</span></div>
@@ -265,10 +265,10 @@ Source code</h3>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> printDataPacket(<a class="code hl_struct" href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket&lt;dataPacket&gt;</a>* packet) {</div>
-<div class="line">    Log.trace(F(<span class="stringliteral">&quot;Packet arrived from %X with size %d&quot;</span> CR), packet-&gt;src, packet-&gt;payloadSize);</div>
+<div class="line">    Log.trace(F(<span class="stringliteral">&quot;Packet arrived from %X with size %d&quot;</span> CR), packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#a1e7f9947d0debb04dab524ed88759670">src</a>, packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#a208db55580328b6815d83aa69736fc02">payloadSize</a>);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">//Get the payload to iterate through it</span></div>
-<div class="line">    dataPacket* dPacket = packet-&gt;payload;</div>
+<div class="line">    dataPacket* dPacket = packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#adf0ba6eb1b74ea690513fd798016a037">payload</a>;</div>
 <div class="line">    <span class="keywordtype">size_t</span> payloadLength = radio.<a class="code hl_function" href="class_lora_mesher.html#ae12b570f2c65008f93704b2d2236e8f8">getPayloadLength</a>(packet);</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; payloadLength; i++) {</div>
@@ -331,13 +331,16 @@ Source code</h3>
 <div class="line">    }</div>
 <div class="line">}</div>
 <div class="ttc" id="aclass_lora_mesher_html"><div class="ttname"><a href="class_lora_mesher.html">LoraMesher</a></div><div class="ttdef"><b>Definition:</b> loramesher.h:68</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_a2d6e1298189108bbc07ff5621e4d667a"><div class="ttname"><a href="class_lora_mesher.html#a2d6e1298189108bbc07ff5621e4d667a">LoraMesher::deletePacket</a></div><div class="ttdeci">static void deletePacket(userPacket&lt; T &gt; *p)</div><div class="ttdoc">Delete the packet from memory.</div><div class="ttdef"><b>Definition:</b> loramesher.h:205</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_a54e0edeaf306b3647325bd362982ee8d"><div class="ttname"><a href="class_lora_mesher.html#a54e0edeaf306b3647325bd362982ee8d">LoraMesher::getNextUserPacket</a></div><div class="ttdeci">userPacket&lt; T &gt; * getNextUserPacket()</div><div class="ttdoc">Get the Next User Packet.</div><div class="ttdef"><b>Definition:</b> loramesher.h:177</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ac3807f4ae5e6fa40e7e403df040e69ca"><div class="ttname"><a href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">LoraMesher::init</a></div><div class="ttdeci">void init(void(*receiverFunction)(void *))</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:5</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ac600ecb52b71892e12bb7e1889be6de8"><div class="ttname"><a href="class_lora_mesher.html#ac600ecb52b71892e12bb7e1889be6de8">LoraMesher::createPacketAndSend</a></div><div class="ttdeci">void createPacketAndSend(uint16_t dst, T *payload, uint8_t payloadSize)</div><div class="ttdoc">Create a Packet And Send it.</div><div class="ttdef"><b>Definition:</b> loramesher.h:128</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ae12b570f2c65008f93704b2d2236e8f8"><div class="ttname"><a href="class_lora_mesher.html#ae12b570f2c65008f93704b2d2236e8f8">LoraMesher::getPayloadLength</a></div><div class="ttdeci">size_t getPayloadLength(userPacket&lt; T &gt; *p)</div><div class="ttdoc">Get the payload length in number of T.</div><div class="ttdef"><b>Definition:</b> loramesher.h:194</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_af02b008ec573f4c0f0b3ea7a31e0982e"><div class="ttname"><a href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">LoraMesher::getReceivedQueueSize</a></div><div class="ttdeci">size_t getReceivedQueueSize()</div><div class="ttdoc">Returns the number of packets inside the received packets queue.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:815</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket</a></div><div class="ttdef"><b>Definition:</b> loramesher.h:111</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_a2d6e1298189108bbc07ff5621e4d667a"><div class="ttname"><a href="class_lora_mesher.html#a2d6e1298189108bbc07ff5621e4d667a">LoraMesher::deletePacket</a></div><div class="ttdeci">static void deletePacket(userPacket&lt; T &gt; *p)</div><div class="ttdoc">Delete the packet from memory.</div><div class="ttdef"><b>Definition:</b> loramesher.h:236</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_a54e0edeaf306b3647325bd362982ee8d"><div class="ttname"><a href="class_lora_mesher.html#a54e0edeaf306b3647325bd362982ee8d">LoraMesher::getNextUserPacket</a></div><div class="ttdeci">userPacket&lt; T &gt; * getNextUserPacket()</div><div class="ttdoc">Get the Next User Packet.</div><div class="ttdef"><b>Definition:</b> loramesher.h:208</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ac3807f4ae5e6fa40e7e403df040e69ca"><div class="ttname"><a href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">LoraMesher::init</a></div><div class="ttdeci">void init(void(*receiverFunction)(void *))</div><div class="ttdoc">Initialize the Lora Mesher object.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:5</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ac600ecb52b71892e12bb7e1889be6de8"><div class="ttname"><a href="class_lora_mesher.html#ac600ecb52b71892e12bb7e1889be6de8">LoraMesher::createPacketAndSend</a></div><div class="ttdeci">void createPacketAndSend(uint16_t dst, T *payload, uint8_t payloadSize)</div><div class="ttdoc">Create a Packet And Send it.</div><div class="ttdef"><b>Definition:</b> loramesher.h:159</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ae12b570f2c65008f93704b2d2236e8f8"><div class="ttname"><a href="class_lora_mesher.html#ae12b570f2c65008f93704b2d2236e8f8">LoraMesher::getPayloadLength</a></div><div class="ttdeci">size_t getPayloadLength(userPacket&lt; T &gt; *p)</div><div class="ttdoc">Get the payload length in number of T.</div><div class="ttdef"><b>Definition:</b> loramesher.h:225</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_af02b008ec573f4c0f0b3ea7a31e0982e"><div class="ttname"><a href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">LoraMesher::getReceivedQueueSize</a></div><div class="ttdeci">size_t getReceivedQueueSize()</div><div class="ttdoc">Returns the number of packets inside the received packets queue.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:764</div></div>
+<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket</a></div><div class="ttdoc">User packet, it is used to send the packet to the user.</div><div class="ttdef"><b>Definition:</b> loramesher.h:123</div></div>
+<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html_a1e7f9947d0debb04dab524ed88759670"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html#a1e7f9947d0debb04dab524ed88759670">LoraMesher::userPacket::src</a></div><div class="ttdeci">uint16_t src</div><div class="ttdoc">Source Address.</div><div class="ttdef"><b>Definition:</b> loramesher.h:134</div></div>
+<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html_a208db55580328b6815d83aa69736fc02"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html#a208db55580328b6815d83aa69736fc02">LoraMesher::userPacket::payloadSize</a></div><div class="ttdeci">uint32_t payloadSize</div><div class="ttdoc">Payload Size in bytes.</div><div class="ttdef"><b>Definition:</b> loramesher.h:140</div></div>
+<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html_adf0ba6eb1b74ea690513fd798016a037"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html#adf0ba6eb1b74ea690513fd798016a037">LoraMesher::userPacket::payload</a></div><div class="ttdeci">T payload[]</div><div class="ttdoc">Payload Array.</div><div class="ttdef"><b>Definition:</b> loramesher.h:146</div></div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

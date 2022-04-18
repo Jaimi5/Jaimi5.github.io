@@ -106,15 +106,19 @@ $(document).ready(function(){initNavTree('class_lora_mesher.html',''); initResiz
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_lora_mesher_1_1network_node.html">networkNode</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Network node, used to send and store the routing table.  <a href="struct_lora_mesher_1_1network_node.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_lora_mesher_1_1routable_node.html">routableNode</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Routable node, store the network node, via and timeout of this route.  <a href="struct_lora_mesher_1_1routable_node.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_lora_mesher_1_1user_packet.html">userPacket</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">User packet, it is used to send the packet to the user.  <a href="struct_lora_mesher_1_1user_packet.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ac3807f4ae5e6fa40e7e403df040e69ca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">init</a> (void(*receiverFunction)(void *))</td></tr>
+<tr class="memdesc:ac3807f4ae5e6fa40e7e403df040e69ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the Lora Mesher object.  <a href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">More...</a><br /></td></tr>
 <tr class="separator:ac3807f4ae5e6fa40e7e403df040e69ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6387d236746f74a845167907668f5de"><td class="memItemLeft" align="right" valign="top"><a id="ac6387d236746f74a845167907668f5de" name="ac6387d236746f74a845167907668f5de"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>~LoraMesher</b> ()</td></tr>
@@ -470,22 +474,37 @@ false If the addres is not inside the routing table </dd></dl>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">   @brief Initialize the Lora Mesher object
 
-   @param receiverFunction Receiver function. It will be notified when data for the user is habailable.
-   Example of usage:
-  void processReceivedPackets(void* parameters) {
-   for (;;) {
-</pre><p> Wait for the notification of processReceivedPackets and enter blocking ulTaskNotifyTake(pdPASS, portMAX_DELAY);</p>
-<p >Get the receivedUserPackets and get all the elements while (radio-&gt;ReceivedUserPackets-&gt;Size() &gt; 0) { packetQueue&lt;dataPacket&gt;* packetReceived = radio.ReceivedUserPackets-&gt;Pop&lt;dataPacket&gt;();</p>
-<p >Do something with the packet, ex: print(packetReceived); </p><pre class="fragment">      }
-    }
-  }
-
-  Then initialize:
-  LoraMesher radio = LoraMesher::getInstance();
-  radio.init(processReceivedPackets);
-</pre> 
+<p>Initialize the Lora Mesher object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">receiverFunction</td><td>Receiver function. It will be notified when data for the user is habailable. Example of usage: <div class="fragment"><div class="line"><span class="keywordtype">void</span> processReceivedPackets(<span class="keywordtype">void</span>* parameters) {</div>
+<div class="line">     <span class="keywordflow">for</span> (;;) {</div>
+<div class="line">         <span class="comment">//Wait for the notification of processReceivedPackets and enter blocking</span></div>
+<div class="line">         ulTaskNotifyTake(pdPASS, portMAX_DELAY);</div>
+<div class="line"> </div>
+<div class="line">         <span class="comment">// Get the receivedUserPackets and get all the elements</span></div>
+<div class="line">         <span class="keywordflow">while</span> (radio.getReceivedQueueSize() &gt; 0) {</div>
+<div class="line">             <span class="comment">//Get the first element inside the Received User Packets FiFo</span></div>
+<div class="line">             <a class="code hl_struct" href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket&lt;dataPacket&gt;</a>* packet = radio.getNextUserPacket&lt;dataPacket&gt;();</div>
+<div class="line"> </div>
+<div class="line">             <span class="comment">//Do something with the packet, ex: print(packetReceived);</span></div>
+<div class="line"> </div>
+<div class="line">             <span class="comment">//Then delete the packet</span></div>
+<div class="line">             radio.deletePacket(packet);</div>
+<div class="line">         }</div>
+<div class="line">     }</div>
+<div class="line">}</div>
+<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket</a></div><div class="ttdoc">User packet, it is used to send the packet to the user.</div><div class="ttdef"><b>Definition:</b> loramesher.h:123</div></div>
+</div><!-- fragment --></td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Then initialize: </p><div class="fragment"><div class="line"><a class="code hl_class" href="class_lora_mesher.html">LoraMesher</a> radio = LoraMesher::getInstance();</div>
+<div class="line">radio.<a class="code hl_function" href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">init</a>(processReceivedPackets);</div>
+<div class="ttc" id="aclass_lora_mesher_html"><div class="ttname"><a href="class_lora_mesher.html">LoraMesher</a></div><div class="ttdef"><b>Definition:</b> loramesher.h:68</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ac3807f4ae5e6fa40e7e403df040e69ca"><div class="ttname"><a href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">LoraMesher::init</a></div><div class="ttdeci">void init(void(*receiverFunction)(void *))</div><div class="ttdoc">Initialize the Lora Mesher object.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:5</div></div>
+</div><!-- fragment --> 
 </div>
 </div>
 <a id="ab70a80c723b4a610b897fd8f523a3359" name="ab70a80c723b4a610b897fd8f523a3359"></a>

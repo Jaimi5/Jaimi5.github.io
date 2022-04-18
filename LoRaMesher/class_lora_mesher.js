@@ -1,8 +1,8 @@
 var class_lora_mesher =
 [
-    [ "networkNode", "struct_lora_mesher_1_1network_node.html", null ],
-    [ "routableNode", "struct_lora_mesher_1_1routable_node.html", null ],
-    [ "userPacket", "struct_lora_mesher_1_1user_packet.html", null ],
+    [ "networkNode", "struct_lora_mesher_1_1network_node.html", "struct_lora_mesher_1_1network_node" ],
+    [ "routableNode", "struct_lora_mesher_1_1routable_node.html", "struct_lora_mesher_1_1routable_node" ],
+    [ "userPacket", "struct_lora_mesher_1_1user_packet.html", "struct_lora_mesher_1_1user_packet" ],
     [ "~LoraMesher", "class_lora_mesher.html#ac6387d236746f74a845167907668f5de", null ],
     [ "createPacketAndSend", "class_lora_mesher.html#ac600ecb52b71892e12bb7e1889be6de8", null ],
     [ "getLocalAddress", "class_lora_mesher.html#a1cd59cbd716f9e11ca993798f79d7a41", null ],

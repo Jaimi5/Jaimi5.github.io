@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['printroutingtable_0',['printRoutingTable',['../class_lora_mesher.html#a1ec79ff9602ef2b990324ac8df5900e8',1,'LoraMesher']]]
+  ['metric_0',['metric',['../struct_lora_mesher_1_1network_node.html#ae712ce7d74d1bb71477e850da78f5f6a',1,'LoraMesher::networkNode']]]
 ];

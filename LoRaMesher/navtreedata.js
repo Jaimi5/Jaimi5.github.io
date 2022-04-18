@@ -25,15 +25,24 @@
 var NAVTREE =
 [
   [ "LoRa Mesher Library", "index.html", [
-    [ "Configuration", "md__lo_ra_mesher__r_e_a_d_m_e.html", [
-      [ "Introduction", "index.html#autotoc_md1", null ],
-      [ "Dependencies", "index.html#autotoc_md2", null ],
-      [ "Currently Supported Protocols", "index.html#autotoc_md3", null ],
-      [ "Quick Links", "index.html#autotoc_md4", null ],
-      [ "Used technologies", "index.html#autotoc_md5", null ],
-      [ "See also", "index.html#autotoc_md6", null ],
-      [ "Copyright", "index.html#autotoc_md7", [
-        [ "Configure LoRaMesher with PlatformIO and Visual Studio Code", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md0", null ]
+    [ "LoRaMesher", "md__lo_ra_mesher__r_e_a_d_m_e.html", [
+      [ "Introduction", "index.html#autotoc_md11", null ],
+      [ "Dependencies", "index.html#autotoc_md12", null ],
+      [ "Currently Supported Protocols", "index.html#autotoc_md13", null ],
+      [ "Quick Links", "index.html#autotoc_md14", null ],
+      [ "Used technologies", "index.html#autotoc_md15", null ],
+      [ "See also", "index.html#autotoc_md16", null ],
+      [ "Copyright", "index.html#autotoc_md17", null ],
+      [ "Introduction", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md1", null ],
+      [ "Dependencies", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md2", null ],
+      [ "Configure LoRaMesher with PlatformIO and Visual Studio Code", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md3", null ],
+      [ "LoRaMesher Example", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md4", [
+        [ "Defining the data type and the data counter", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md5", null ],
+        [ "LoRaMesh Initialization", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md6", null ],
+        [ "Received packets function", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md7", null ],
+        [ "User data packet", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md8", null ],
+        [ "Send data packet function", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md9", null ],
+        [ "Print packet example", "md__lo_ra_mesher__r_e_a_d_m_e.html#autotoc_md10", null ]
       ] ]
     ] ],
     [ "Examples", "_list_of_examples.html", "_list_of_examples" ],
