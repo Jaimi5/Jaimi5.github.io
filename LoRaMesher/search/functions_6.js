@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['routingtablesize_0',['routingTableSize',['../class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359',1,'LoraMesher']]]
+  ['init_0',['init',['../class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca',1,'LoraMesher']]]
 ];

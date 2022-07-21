@@ -8,20 +8,21 @@ The LoRaMesher library implements a distance-vector routing protocol for communi
 
 ## Dependencies
 
-You can check `library.json` for more details. Basically, we use a modded version of [Radiolib](https://github.com/jgromes/RadioLib) that supports class methods as callbacks and [FreeRTOS](https://freertos.org/index.html) for scheduling maintenance tasks.
+You can check `library.json` for more details. Basically, we use a modded version of [RadioLib](https://github.com/jgromes/RadioLib) that supports class methods as callbacks and [FreeRTOS](https://freertos.org/index.html) for scheduling maintenance tasks.
 
 ## Currently Supported Protocols
 - Finding nodes using a simple routing protocol
 - Send messages broadcast or to one of the nodes in the routing table
-- Send reliable messages. It is accomplish sending ACK and other configuration packets inside LoRa Mesher
+- Send reliable messages. It is accomplish sending ACK and other configuration packets inside LoRaMesher
 - Send large payloads. Since we cannot send packets larger than 222 bytes, we divide the payload and send reliable messages until is all sent/received
 
 ## Quick Links
 Documentation for most common methods can be found in its reference page. \n
-Configuration of the library in \ref Configuration. \n
+Configuration of the library in Configure LoRaMesher with PlatformIO and Visual Studio Code. \n
 Some examples of usage of the library in \ref ListOfExamples.
 
 ## Used technologies
+- [PlatformIO](https://platformio.org/)
 - [RadioLib](https://github.com/jgromes/RadioLib)
 - [FreeRTOS](https://freertos.org)
 - [Doxygen](https://doxygen.nl)
@@ -38,11 +39,13 @@ Copyright (c) 2022 Joan Miquel Solé
 
 \page ListOfExamples Examples
 
-In this page you will see a list of examples on how to use the LoRa Mesher library:
-- \subpage counter
-- \subpage counterAndDisplay
+In this page you will see a list of examples on how to use the LoRaMesher library:
+- \subpage Counter
+- \subpage CounterAndDisplay
 
-\page counter Counter Example
+\page 
+
+\page Counter Counter Example
 \tableofcontents
 
 There is, in the source files of this first implementation, an example to test the new functionalities. This example is an implementation of a counter, sending a broadcast message every 10 seconds. To make it easier to understand, we will remove additional functions that are not necessary to make the microcontroller work with the LoRaMesher library.
@@ -64,24 +67,34 @@ dataPacket* helloPacket = new dataPacket;
 
 ### LoRaMesh Initialization
 
-To initialize the new implementation, LoRaMesher must be initialized with a function call. This function will be notified every time the microcontroller receives an incoming packet for the user.
+To initialize the new implementation, you can configure the LoRa parameters that the library will use. If your node needs to receive messages to the application, see Received packets function section.
 
 ```
-Serial.begin(115200); //This configuration can be changed
+Serial.begin(115200);
 Serial.println("initBoard");
 
 //Get the LoraMesher instance
 LoraMesher& radio = LoraMesher::getInstance();
 
-//Initialize the LoraMesher with a processReceivedPackets function
-radio.init(processReceivedPackets);
-```
+//Initialize the LoraMesher. You can specify the LoRa parameters here or later with their respective functions
+radio.begin();
 
-We can see that, when starting a new instance of LoRaMesher, we need to pass through a function.
+//After initializing you need to start the radio with
+radio.start();
+
+//You can pause and resume at any moment with
+radio.standby();
+//And then
+radio.start();
+```
 
 ### Received packets function
 
-The function that gets a notification each time the library receives a packet for the user looks like this one:
+If your node needs to receive packets from other nodes you should follow the next steps:
+
+1. Create a function that will receive the packets:
+
+The function that gets a notification each time the library receives a packet for the app looks like this one:
 
 ```
 /**
@@ -99,7 +112,7 @@ void processReceivedPackets(void*) {
             Log.trace(F("Queue receiveUserData size: %d" CR), radio.getReceivedQueueSize());
 
             //Get the first element inside the Received User Packets FiFo
-            LoraMesher::userPacket<dataPacket>* packet = radio.getNextUserPacket<dataPacket>();
+            AppPacket<dataPacket>* packet = radio.getNextAppPacket<dataPacket>();
 
             //Print the data packet
             printDataPacket(packet);
@@ -114,33 +127,64 @@ void processReceivedPackets(void*) {
 
 There are some important things we need to be aware of:
 
-1. This function should have a `void*` in the parameters.
-2. The function should contain an endless loop.
-3. Inside the loop, it is mandatory to have the `ulTaskNotifyTake(pdPASS,portMAX_DELAY)` or equivalent. This function allows the library to notify the function to process pending packets.
-4. All the packets are stored inside a private queue.
-5. There is a function to get the size of the queue `radio.getReceivedQueueSize()`.
-6. You can get the first element with `radio.getNextUserPacket<T>()` where T is the type of your data. 
-7. IMPORTANT!!! Every time you call Pop, you need to be sure to call `radio.deletePacket(packet)`. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.
+- This function should have a `void*` in the parameters.
+- The function should contain an endless loop.
+- Inside the loop, it is mandatory to have the `ulTaskNotifyTake(pdPASS,portMAX_DELAY)` or equivalent. This function allows the library to notify the function to process pending packets.
+- All the packets are stored inside a private queue.
+- There is a function to get the size of the queue `radio.getReceivedQueueSize()`.
+- You can get the first element with `radio.getNextAppPacket<T>()` where T is the type of your data. 
+- IMPORTANT!!! Every time you call Pop, you need to be sure to call `radio.deletePacket(packet)`. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.
+
+2. Create a task containing this function:
+```
+TaskHandle_t receiveLoRaMessage_Handle = NULL;
+
+/**
+ * @brief Create a Receive Messages Task and add it to the LoRaMesher
+ *
+ */
+void createReceiveMessages() {
+    int res = xTaskCreate(
+        processReceivedPackets,
+        "Receive App Task",
+        4096,
+        (void*) 1,
+        2,
+        &receiveLoRaMessage_Handle);
+    if (res != pdPASS) {
+        Log.errorln(F("Receive App Task creation gave error: %d"), res);
+    }
+}
+
+```
+
+2. Add the receiveLoRaMessage_Handle to the LoRaMesher
+
+```
+radio.setReceiveAppDataTaskHandle(receiveLoRaMessage_Handle);
+```
 
 ### User data packet
 
-In this section we will show you what there are inside a `userPacket`.
+In this section we will show you what there are inside a `AppPacket`.
 ```
-struct userPacket {
-    uint16_t dst; //Destination address, in this case it should be or local address or BROADCAST_ADDR
+class AppPacket {
+    uint16_t dst; //Destination address, normally it will be local address or BROADCAST_ADDR
     uint16_t src; //Source address
     uint32_t payloadSize = 0; //Payload size in bytes
     T payload[]; //Payload
+
+    size_t getPayloadLength() { return this->payloadSize / sizeof(T); }
 };
 ```
 
-Functionalities to use after getting the packet with `LoraMesher::userPacket<T>* userPacket = radio.getNextUserPacket<T>()`:
-1. `radio.getPayloadLength(userPacket)` it will get you the payload size in number of T
-2. `radio.deletePacket(userPacket)` it will release the memory allocated for this packet.
+Functionalities to use after getting the packet with `AppPacket<T>* packet = radio.getNextAppPacket<T>()`:
+1. `packet->getPayloadLength()` it will get you the payload size in number of T
+2. `radio.deletePacket(packet)` it will release the memory allocated for this packet.
 
 ### Send data packet function
 
-In this section we will present how you can create and send packets. in this example we will use the `dataPacket` data structure.
+In this section we will present how you can create and send packets. in this example we will use the `AppPacket` data structure.
 
 ```
   void loop() {
@@ -148,6 +192,9 @@ In this section we will present how you can create and send packets. in this exa
 
         //Create packet and send it.
          radio.createPacketAndSend(BROADCAST_ADDR, helloPacket, 1);
+         
+         //Or if you want to send large and reliable payloads you can call this function too.
+         radio.sendReliable(dstAddr, helloPacket, 1);
 
         //Wait 10 seconds to send the next packet
         vTaskDelay(10000 / portTICK_PERIOD_MS);
@@ -180,10 +227,10 @@ void printPacket(dataPacket data) {
  *
  * @param packet
  */
-void printDataPacket(LoraMesher::userPacket<dataPacket>* packet) {
+void printDataPacket(AppPacket<dataPacket>* packet) {
     //Get the payload to iterate through it
     dataPacket* dPacket = packet->payload;
-    size_t payloadLength = radio.getPayloadLength(packet);
+    size_t payloadLength = packet->getPayloadLength();
 
     for (size_t i = 0; i < payloadLength; i++) {
         //Print the packet
@@ -194,7 +241,7 @@ void printDataPacket(LoraMesher::userPacket<dataPacket>* packet) {
 
 1. After receiving the packet in the `processReceivedPackets()` function, we call the `printDataPacket()` function.
 2. We need to get the payload of the packet using `packet->payload`.
-3. We iterate through the `radio.getPayloadLength(packet)`. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.
+3. We iterate through the `packet->getPayloadLength()`. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.
 4. Get the payload and call the `printPacket(dPacket[i])` function, that will print the counter received.
 
 ### Source code
@@ -217,7 +264,7 @@ void printDataPacket(LoraMesher::userPacket<dataPacket>* packet) {
 
 
 
-\page counterAndDisplay Counter And Display
+\page CounterAndDisplay Counter And Display
 \tableofcontents
 
 In this example we can see an application that will send a counter to anyone that can listen in one hop.
@@ -243,24 +290,34 @@ dataPacket* helloPacket = new dataPacket;
 
 ### LoRaMesh Initialization
 
-To initialize the new implementation, LoRaMesher must be initialized with a function call. This function will be notified every time the microcontroller receives an incoming packet for the user.
+To initialize the new implementation, you can configure the LoRa parameters that the library will use. If your node needs to receive messages to the application, see Received packets function section.
 
 ```
-Serial.begin(115200); //This configuration can be changed
+Serial.begin(115200);
 Serial.println("initBoard");
 
 //Get the LoraMesher instance
 LoraMesher& radio = LoraMesher::getInstance();
 
-//Initialize the LoraMesher with a processReceivedPackets function
-radio.init(processReceivedPackets);
-```
+//Initialize the LoraMesher. You can specify the LoRa parameters here or later with their respective functions
+radio.begin();
 
-We can see that, when starting a new instance of LoRaMesher, we need to pass through a function.
+//After initializing you need to start the radio with
+radio.start();
+
+//You can pause and resume at any moment with
+radio.standby();
+//And then
+radio.start();
+```
 
 ### Received packets function
 
-The function that gets a notification each time the library receives a packet for the user looks like this one:
+If your node needs to receive packets from other nodes you should follow the next steps:
+
+1. Create a function that will receive the packets:
+
+The function that gets a notification each time the library receives a packet for the app looks like this one:
 
 ```
 /**
@@ -272,13 +329,13 @@ void processReceivedPackets(void*) {
         /* Wait for the notification of processReceivedPackets and enter blocking */
         ulTaskNotifyTake(pdPASS, portMAX_DELAY);
 
-        //Iterate through all the packets inside the Received User Packets FiFo
+        //Iterate through all the packets inside the Received App Packets Queue
         while (radio.getReceivedQueueSize() > 0) {
             Log.trace(F("ReceivedUserData_TaskHandle notify received" CR));
             Log.trace(F("Queue receiveUserData size: %d" CR), radio.getReceivedQueueSize());
 
-            //Get the first element inside the Received User Packets FiFo
-            LoraMesher::userPacket<dataPacket>* packet = radio.getNextUserPacket<dataPacket>();
+            //Get the first element inside the Received App Packets Queue
+            AppPacket<dataPacket>* packet = radio.getNextAppPacket<dataPacket>();
 
             //Print the data packet
             printDataPacket(packet);
@@ -293,32 +350,64 @@ void processReceivedPackets(void*) {
 
 There are some important things we need to be aware of:
 
-1. This function should have a `void*` in the parameters.
-2. The function should contain an endless loop.
-3. Inside the loop, it is mandatory to have the `ulTaskNotifyTake(pdPASS,portMAX_DELAY)` or equivalent. This function allows the library to notify the function to process pending packets.
-4. All the packets are stored inside a private queue.
-5. There is a function to get the size of the queue `radio.getReceivedQueueSize()`.
-6. You can get the first element with `radio.getNextUserPacket<T>()` where T is the type of your data. 
-7. IMPORTANT!!! Every time you call Pop, you need to be sure to call `radio.deletePacket(packet)`. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.
+- This function should have a `void*` in the parameters.
+- The function should contain an endless loop.
+- Inside the loop, it is mandatory to have the `ulTaskNotifyTake(pdPASS,portMAX_DELAY)` or equivalent. This function allows the library to notify the function to process pending packets.
+- All the packets are stored inside a private queue.
+- There is a function to get the size of the queue `radio.getReceivedQueueSize()`.
+- You can get the first element with `radio.getNextAppPacket<T>()` where T is the type of your data. 
+- IMPORTANT!!! Every time you call Pop, you need to be sure to call `radio.deletePacket(packet)`. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.
+
+2. Create a task containing this function:
+```
+TaskHandle_t receiveLoRaMessage_Handle = NULL;
+
+/**
+ * @brief Create a Receive Messages Task and add it to the LoRaMesher
+ *
+ */
+void createReceiveMessages() {
+    int res = xTaskCreate(
+        processReceivedPackets,
+        "Receive App Task",
+        4096,
+        (void*) 1,
+        2,
+        &receiveLoRaMessage_Handle);
+    if (res != pdPASS) {
+        Log.errorln(F("Receive App Task creation gave error: %d"), res);
+    }
+}
+
+```
+
+2. Add the receiveLoRaMessage_Handle to the LoRaMesher
+
+```
+radio.setReceiveAppDataTaskHandle(receiveLoRaMessage_Handle);
+```
 
 ### User data packet
 
-In this section we will show you what there are inside a `userPacket`.
+In this section we will show you what there are inside a `AppPacket`.
 ```
-struct userPacket {
-    uint16_t dst; //Destination address, in this case it should be or local address or BROADCAST_ADDR
+class AppPacket {
+    uint16_t dst; //Destination address, normally it will be local address or BROADCAST_ADDR
     uint16_t src; //Source address
     uint32_t payloadSize = 0; //Payload size in bytes
     T payload[]; //Payload
+
+    size_t getPayloadLength() { return this->payloadSize / sizeof(T); }
 };
 ```
 
-Functionalities to use after getting the packet with `LoraMesher::userPacket<T>* userPacket = radio.getNextUserPacket<T>()`:
-1. `radio.getPayloadLength(userPacket)` it will get you the payload size in number of T
-2. `radio.deletePacket(userPacket)` it will release the memory allocated for this packet.
+Functionalities to use after getting the packet with `AppPacket<T>* packet = radio.getNextAppPacket<T>()`:
+1. `packet->getPayloadLength()` it will get you the payload size in number of T
+2. `radio.deletePacket(packet)` it will release the memory allocated for this packet.
 
 ### Send data packet function
-In this section we will present how you can create and send packets. in this example we will use the `dataPacket` data structure.
+
+In this section we will present how you can create and send packets. in this example we will use the `dataPacket` data structure described before.
 
 #### Creation of the Task to send
 
@@ -357,16 +446,18 @@ void sendLoRaMessage(void*) {
 
     for (;;) {
         if (radio.routingTableSize() == 0) {
-            vTaskDelay(20000 / portTICK_PERIOD_MS);
+            vTaskDelay(120000 / portTICK_PERIOD_MS);
             continue;
         }
 
         if (radio.routingTableSize() <= dataTablePosition)
             dataTablePosition = 0;
 
-        uint16_t addr = radio.routingTable[dataTablePosition].networkNode.address;
+        LM_LinkedList<RouteNode>* routingTableList = radio.routingTableList();
 
-        Log.trace(F("Send data packet nº %d to %X (%d)" CR), dataCounter, addr, dataTablePosition);
+        uint16_t addr = (*routingTableList)[dataTablePosition]->networkNode.address;
+
+        Log.traceln(F("Send data packet nº %d to %X (%d)"), dataCounter, addr, dataTablePosition);
 
         dataTablePosition++;
 
@@ -383,7 +474,7 @@ void sendLoRaMessage(void*) {
         printRoutingTableToDisplay();
 
         //Wait 20 seconds to send the next packet
-        vTaskDelay(20000 / portTICK_PERIOD_MS);
+        vTaskDelay(120000 / portTICK_PERIOD_MS);
     }
 }
 ```
@@ -395,11 +486,17 @@ The most important part of this piece of code is the function that we call in th
 1. The first parameter is the destination, in this case the broadcast address.
 2. And finally, the helloPacket (the packet we created) and the number of elements we are sending, in this case only 1 dataPacket.
 
+You can access to the Routing Table with the following command:
+`LM_LinkedList<RouteNode>* routingTableList = radio.routingTableList();`
+
+Which LM_LinkedList is a specific linked list used inside the LoRaMesher.
+
 ### Print packet example
 
 When receiving the packet, we need to understand what the Queue will return us. For this reason, in the next subsection, we will explain how to implement a simple packet processing.
 
 ```
+
 /**
  * @brief Print the counter of the packet
  *
@@ -407,10 +504,10 @@ When receiving the packet, we need to understand what the Queue will return us. 
  */
 void printPacket(dataPacket* data, uint16_t sourceAddress) {
     char text[32];
-    snprintf(text, 32, ("%X-> %d" CR), sourceAddress, data->counter[0]);
+    snprintf(text, 32, ("%X-> %d"), sourceAddress, data->counter[0]);
 
     Screen.changeLineThree(String(text));
-    Log.verbose(F("Received data nº %d" CR), data->counter[0]);
+    Log.verboseln(F("Received data nº %d"), data->counter[0]);
 }
 
 /**
@@ -418,38 +515,38 @@ void printPacket(dataPacket* data, uint16_t sourceAddress) {
  *
  * @param packet
  */
-void printDataPacket(LoraMesher::userPacket<dataPacket>* packet) {
-    Log.trace(F("Packet arrived from %X with size %d bytes" CR), packet->src, packet->payloadSize);
+void printDataPacket(AppPacket<dataPacket>* packet) {
+    Log.traceln(F("Packet arrived from %X with size %d bytes"), packet->src, packet->payloadSize);
 
     //Get the payload to iterate through it
     dataPacket* dPacket = packet->payload;
-    size_t payloadLength = radio.getPayloadLength(packet);
+    size_t payloadLength = packet->getPayloadLength();
 
     printPacket(&dPacket[0], packet->src);
 
-    Log.trace(F("---- Payload ---- Payload length in dataP: %d " CR), payloadLength);
+    Log.traceln(F("---- Payload ---- Payload length in dataP: %d "), payloadLength);
     Log.setShowLevel(false);
 
     for (size_t i = 0; i < payloadLength; i++) {
-        Log.verbose(F("Received data nº %d" CR), i);
+        Log.verbose(F("Received data nº %d"), i);
         Log.verbose(F("%d -- "), i);
 
         for (size_t j = 0; j < 35; j++) {
             Log.verbose(F("%d, "), dPacket[i].counter[j]);
 
         }
-        Log.verbose(F("" CR));
+        Log.verbose(F(""));
     }
 
     Log.setShowLevel(true);
-    Log.trace(F("---- Payload Done ---- " CR));
+    Log.traceln(F("---- Payload Done ---- "));
 
 }
 ```
 
 1. After receiving the packet in the `processReceivedPackets()` function, we call the `printDataPacket()` function.
 2. We need to get the payload of the packet using `packet->payload`.
-3. We iterate through the `radio.getPayloadLength(packet)`. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.
+3. We iterate through the `packet->getPayloadLength()`. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.
 4. Get the payload and call the `printPacket(dPacket[i])` function, that will print the counter received.
 
 ### Source code

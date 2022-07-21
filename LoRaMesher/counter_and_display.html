@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=11" />
     <meta name="generator" content="Doxygen 1.9.3" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LoRa Mesher Library: Counter And Display</title>
+    <title>LoRaMesher Library: Counter And Display</title>
     <link href="tabs.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="dynsections.js"></script>
@@ -35,8 +35,8 @@
                     <tbody>
                         <tr id="projectrow">
                             <td id="projectalign">
-                                <div id="projectname">LoRa Mesher Library
-                                    <span id="projectnumber">&#160;0.0.4</span>
+                                <div id="projectname">LoRaMesher Library
+                                    <span id="projectnumber">&#160;0.0.5</span>
                                 </div>
                                 <div id="projectbrief">A LoRa Mesh library for the IoT</div>
                             </td>
@@ -97,23 +97,23 @@ $(document).ready(function(){initNavTree('counter_and_display.html',''); initRes
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><ul><ul><li class="level3"><a href="#autotoc_md25">Defining the data type and the data counter</a></li>
-<li class="level3"><a href="#autotoc_md26">LoRaMesh Initialization</a></li>
-<li class="level3"><a href="#autotoc_md27">Received packets function</a></li>
-<li class="level3"><a href="#autotoc_md28">User data packet</a></li>
-<li class="level3"><a href="#autotoc_md29">Send data packet function</a><ul><li class="level4"><a href="#autotoc_md30">Creation of the Task to send</a></li>
-<li class="level4"><a href="#autotoc_md31">Task sendLoraMessage routine</a></li>
+<ul><ul><ul><li class="level3"><a href="#autotoc_md14">Defining the data type and the data counter</a></li>
+<li class="level3"><a href="#autotoc_md15">LoRaMesh Initialization</a></li>
+<li class="level3"><a href="#autotoc_md16">Received packets function</a></li>
+<li class="level3"><a href="#autotoc_md17">User data packet</a></li>
+<li class="level3"><a href="#autotoc_md18">Send data packet function</a><ul><li class="level4"><a href="#autotoc_md19">Creation of the Task to send</a></li>
+<li class="level4"><a href="#autotoc_md20">Task sendLoraMessage routine</a></li>
 </ul>
 </li>
-<li class="level3"><a href="#autotoc_md32">Print packet example</a></li>
-<li class="level3"><a href="#autotoc_md33">Source code</a></li>
+<li class="level3"><a href="#autotoc_md21">Print packet example</a></li>
+<li class="level3"><a href="#autotoc_md22">Source code</a></li>
 </ul>
 </ul>
 </ul>
 </div>
 <div class="textblock"><p >In this example we can see an application that will send a counter to anyone that can listen in one hop. In addition, there is configured an example on how a display should work using this library. There is one error that the display function of the OLED should be done in the main loop(). In the display we will see the Id of the device, the last counter we sent, the last counter we received and the routing table of the device.</p>
 <p >In addition, the counter will be send directly to one of the nodes inside the routing table. Each time it will change the destination.</p>
-<h3><a class="anchor" id="autotoc_md25"></a>
+<h3><a class="anchor" id="autotoc_md14"></a>
 Defining the data type and the data counter</h3>
 <p >As a proof of concept, we will be sending a array which the first element will be the counter over LoRa. Its value will be incremented every 10 seconds, then te packet will be transmitted. To start, we need to implement the type of data we will use.</p>
 <p >In this case, we will only send an array of <code>uint32_t</code>, which, the first position is the counter itself.</p>
@@ -123,21 +123,32 @@ Defining the data type and the data counter</h3>
 <div class="line">};</div>
 <div class="line"> </div>
 <div class="line">dataPacket* helloPacket = new dataPacket;</div>
-</div><!-- fragment --><h3><a class="anchor" id="autotoc_md26"></a>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md15"></a>
 LoRaMesh Initialization</h3>
-<p >To initialize the new implementation, LoRaMesher must be initialized with a function call. This function will be notified every time the microcontroller receives an incoming packet for the user.</p>
-<div class="fragment"><div class="line">Serial.begin(115200); //This configuration can be changed</div>
+<p >To initialize the new implementation, you can configure the LoRa parameters that the library will use. If your node needs to receive messages to the application, see Received packets function section.</p>
+<div class="fragment"><div class="line">Serial.begin(115200);</div>
 <div class="line">Serial.println(&quot;initBoard&quot;);</div>
 <div class="line"> </div>
 <div class="line">//Get the LoraMesher instance</div>
 <div class="line">LoraMesher&amp; radio = LoraMesher::getInstance();</div>
 <div class="line"> </div>
-<div class="line">//Initialize the LoraMesher with a processReceivedPackets function</div>
-<div class="line">radio.init(processReceivedPackets);</div>
-</div><!-- fragment --><p >We can see that, when starting a new instance of LoRaMesher, we need to pass through a function.</p>
-<h3><a class="anchor" id="autotoc_md27"></a>
+<div class="line">//Initialize the LoraMesher. You can specify the LoRa parameters here or later with their respective functions</div>
+<div class="line">radio.begin();</div>
+<div class="line"> </div>
+<div class="line">//After initializing you need to start the radio with</div>
+<div class="line">radio.start();</div>
+<div class="line"> </div>
+<div class="line">//You can pause and resume at any moment with</div>
+<div class="line">radio.standby();</div>
+<div class="line">//And then</div>
+<div class="line">radio.start();</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md16"></a>
 Received packets function</h3>
-<p >The function that gets a notification each time the library receives a packet for the user looks like this one:</p>
+<p >If your node needs to receive packets from other nodes you should follow the next steps:</p>
+<ol type="1">
+<li>Create a function that will receive the packets:</li>
+</ol>
+<p >The function that gets a notification each time the library receives a packet for the app looks like this one:</p>
 <div class="fragment"><div class="line">/**</div>
 <div class="line"> * @brief Function that process the received packets</div>
 <div class="line"> *</div>
@@ -147,13 +158,13 @@ Received packets function</h3>
 <div class="line">        /* Wait for the notification of processReceivedPackets and enter blocking */</div>
 <div class="line">        ulTaskNotifyTake(pdPASS, portMAX_DELAY);</div>
 <div class="line"> </div>
-<div class="line">        //Iterate through all the packets inside the Received User Packets FiFo</div>
+<div class="line">        //Iterate through all the packets inside the Received App Packets Queue</div>
 <div class="line">        while (radio.getReceivedQueueSize() &gt; 0) {</div>
 <div class="line">            Log.trace(F(&quot;ReceivedUserData_TaskHandle notify received&quot; CR));</div>
 <div class="line">            Log.trace(F(&quot;Queue receiveUserData size: %d&quot; CR), radio.getReceivedQueueSize());</div>
 <div class="line"> </div>
-<div class="line">            //Get the first element inside the Received User Packets FiFo</div>
-<div class="line">            LoraMesher::userPacket&lt;dataPacket&gt;* packet = radio.getNextUserPacket&lt;dataPacket&gt;();</div>
+<div class="line">            //Get the first element inside the Received App Packets Queue</div>
+<div class="line">            AppPacket&lt;dataPacket&gt;* packet = radio.getNextAppPacket&lt;dataPacket&gt;();</div>
 <div class="line"> </div>
 <div class="line">            //Print the data packet</div>
 <div class="line">            printDataPacket(packet);</div>
@@ -165,31 +176,58 @@ Received packets function</h3>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p >There are some important things we need to be aware of:</p>
-<ol type="1">
+<ul>
 <li>This function should have a <code>void*</code> in the parameters.</li>
 <li>The function should contain an endless loop.</li>
 <li>Inside the loop, it is mandatory to have the <code>ulTaskNotifyTake(pdPASS,portMAX_DELAY)</code> or equivalent. This function allows the library to notify the function to process pending packets.</li>
 <li>All the packets are stored inside a private queue.</li>
 <li>There is a function to get the size of the queue <code>radio.getReceivedQueueSize()</code>.</li>
-<li>You can get the first element with <code>radio.getNextUserPacket&lt;T&gt;()</code> where T is the type of your data.</li>
+<li>You can get the first element with <code>radio.getNextAppPacket&lt;T&gt;()</code> where T is the type of your data.</li>
 <li>IMPORTANT!!! Every time you call Pop, you need to be sure to call <code>radio.deletePacket(packet)</code>. It will free the memory that has been allocated for the packet. If not executed it can cause memory leaks and out of memory errors.</li>
+</ul>
+<ol type="1">
+<li>Create a task containing this function: <div class="fragment"><div class="line">TaskHandle_t receiveLoRaMessage_Handle = NULL;</div>
+<div class="line"> </div>
+<div class="line">/**</div>
+<div class="line"> * @brief Create a Receive Messages Task and add it to the LoRaMesher</div>
+<div class="line"> *</div>
+<div class="line"> */</div>
+<div class="line">void createReceiveMessages() {</div>
+<div class="line">    int res = xTaskCreate(</div>
+<div class="line">        processReceivedPackets,</div>
+<div class="line">        &quot;Receive App Task&quot;,</div>
+<div class="line">        4096,</div>
+<div class="line">        (void*) 1,</div>
+<div class="line">        2,</div>
+<div class="line">        &amp;receiveLoRaMessage_Handle);</div>
+<div class="line">    if (res != pdPASS) {</div>
+<div class="line">        Log.errorln(F(&quot;Receive App Task creation gave error: %d&quot;), res);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment --></li>
 </ol>
-<h3><a class="anchor" id="autotoc_md28"></a>
+<ol type="1">
+<li>Add the receiveLoRaMessage_Handle to the LoRaMesher</li>
+</ol>
+<div class="fragment"><div class="line">radio.setReceiveAppDataTaskHandle(receiveLoRaMessage_Handle);</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md17"></a>
 User data packet</h3>
-<p >In this section we will show you what there are inside a <code>userPacket</code>. </p><div class="fragment"><div class="line">struct userPacket {</div>
-<div class="line">    uint16_t dst; //Destination address, in this case it should be or local address or BROADCAST_ADDR</div>
+<p >In this section we will show you what there are inside a <code><a class="el" href="class_app_packet.html" title="Application packet, it is used to send the packet to the application layer.">AppPacket</a></code>. </p><div class="fragment"><div class="line">class AppPacket {</div>
+<div class="line">    uint16_t dst; //Destination address, normally it will be local address or BROADCAST_ADDR</div>
 <div class="line">    uint16_t src; //Source address</div>
 <div class="line">    uint32_t payloadSize = 0; //Payload size in bytes</div>
 <div class="line">    T payload[]; //Payload</div>
+<div class="line"> </div>
+<div class="line">    size_t getPayloadLength() { return this-&gt;payloadSize / sizeof(T); }</div>
 <div class="line">};</div>
-</div><!-- fragment --><p >Functionalities to use after getting the packet with <code><a class="el" href="struct_lora_mesher_1_1user_packet.html" title="User packet, it is used to send the packet to the user.">LoraMesher::userPacket</a>&lt;T&gt;* userPacket = radio.getNextUserPacket&lt;T&gt;()</code>:</p><ol type="1">
-<li><code>radio.getPayloadLength(userPacket)</code> it will get you the payload size in number of T</li>
-<li><code>radio.deletePacket(userPacket)</code> it will release the memory allocated for this packet.</li>
+</div><!-- fragment --><p >Functionalities to use after getting the packet with <code><a class="el" href="class_app_packet.html" title="Application packet, it is used to send the packet to the application layer.">AppPacket</a>&lt;T&gt;* packet = radio.getNextAppPacket&lt;T&gt;()</code>:</p><ol type="1">
+<li><code>packet-&gt;getPayloadLength()</code> it will get you the payload size in number of T</li>
+<li><code>radio.deletePacket(packet)</code> it will release the memory allocated for this packet.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md29"></a>
+<h3><a class="anchor" id="autotoc_md18"></a>
 Send data packet function</h3>
-<p >In this section we will present how you can create and send packets. in this example we will use the <code>dataPacket</code> data structure.</p>
-<h4><a class="anchor" id="autotoc_md30"></a>
+<p >In this section we will present how you can create and send packets. in this example we will use the <code>dataPacket</code> data structure described before.</p>
+<h4><a class="anchor" id="autotoc_md19"></a>
 Creation of the Task to send</h4>
 <div class="fragment"><div class="line">/**</div>
 <div class="line"> * @brief Setup the Task to create and send periodical messages</div>
@@ -209,7 +247,7 @@ Creation of the Task to send</h4>
 <div class="line">        vTaskDelete(sendLoRaMessage_Handle);</div>
 <div class="line">    }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h4><a class="anchor" id="autotoc_md31"></a>
+</div><!-- fragment --><h4><a class="anchor" id="autotoc_md20"></a>
 Task sendLoraMessage routine</h4>
 <p >In this function every time is executed it will get the routing table, if there is one or more elements, it will send to the first one the dataCounter with the first element as a counter.</p>
 <div class="fragment"><div class="line">/**</div>
@@ -221,16 +259,18 @@ Task sendLoraMessage routine</h4>
 <div class="line"> </div>
 <div class="line">    for (;;) {</div>
 <div class="line">        if (radio.routingTableSize() == 0) {</div>
-<div class="line">            vTaskDelay(20000 / portTICK_PERIOD_MS);</div>
+<div class="line">            vTaskDelay(120000 / portTICK_PERIOD_MS);</div>
 <div class="line">            continue;</div>
 <div class="line">        }</div>
 <div class="line"> </div>
 <div class="line">        if (radio.routingTableSize() &lt;= dataTablePosition)</div>
 <div class="line">            dataTablePosition = 0;</div>
 <div class="line"> </div>
-<div class="line">        uint16_t addr = radio.routingTable[dataTablePosition].networkNode.address;</div>
+<div class="line">        LM_LinkedList&lt;RouteNode&gt;* routingTableList = radio.routingTableList();</div>
 <div class="line"> </div>
-<div class="line">        Log.trace(F(&quot;Send data packet nº %d to %X (%d)&quot; CR), dataCounter, addr, dataTablePosition);</div>
+<div class="line">        uint16_t addr = (*routingTableList)[dataTablePosition]-&gt;networkNode.address;</div>
+<div class="line"> </div>
+<div class="line">        Log.traceln(F(&quot;Send data packet nº %d to %X (%d)&quot;), dataCounter, addr, dataTablePosition);</div>
 <div class="line"> </div>
 <div class="line">        dataTablePosition++;</div>
 <div class="line"> </div>
@@ -247,7 +287,7 @@ Task sendLoraMessage routine</h4>
 <div class="line">        printRoutingTableToDisplay();</div>
 <div class="line"> </div>
 <div class="line">        //Wait 20 seconds to send the next packet</div>
-<div class="line">        vTaskDelay(20000 / portTICK_PERIOD_MS);</div>
+<div class="line">        vTaskDelay(120000 / portTICK_PERIOD_MS);</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 </div><!-- fragment --><p >In the previous figure we can see that we are using the helloPacket, we add the counter inside it, and we create and send the packet using the LoRaMesher.</p>
@@ -256,7 +296,9 @@ Task sendLoraMessage routine</h4>
 <li>The first parameter is the destination, in this case the broadcast address.</li>
 <li>And finally, the helloPacket (the packet we created) and the number of elements we are sending, in this case only 1 dataPacket.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md32"></a>
+<p >You can access to the Routing Table with the following command: <code>LM_LinkedList&lt;<a class="el" href="class_route_node.html">RouteNode</a>&gt;* routingTableList = radio.routingTableList();</code></p>
+<p >Which LM_LinkedList is a specific linked list used inside the LoRaMesher.</p>
+<h3><a class="anchor" id="autotoc_md21"></a>
 Print packet example</h3>
 <p >When receiving the packet, we need to understand what the Queue will return us. For this reason, in the next subsection, we will explain how to implement a simple packet processing.</p>
 <div class="fragment"><div class="line">/**</div>
@@ -266,10 +308,10 @@ Print packet example</h3>
 <div class="line"> */</div>
 <div class="line">void printPacket(dataPacket* data, uint16_t sourceAddress) {</div>
 <div class="line">    char text[32];</div>
-<div class="line">    snprintf(text, 32, (&quot;%X-&gt; %d&quot; CR), sourceAddress, data-&gt;counter[0]);</div>
+<div class="line">    snprintf(text, 32, (&quot;%X-&gt; %d&quot;), sourceAddress, data-&gt;counter[0]);</div>
 <div class="line"> </div>
 <div class="line">    Screen.changeLineThree(String(text));</div>
-<div class="line">    Log.verbose(F(&quot;Received data nº %d&quot; CR), data-&gt;counter[0]);</div>
+<div class="line">    Log.verboseln(F(&quot;Received data nº %d&quot;), data-&gt;counter[0]);</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line">/**</div>
@@ -277,47 +319,49 @@ Print packet example</h3>
 <div class="line"> *</div>
 <div class="line"> * @param packet</div>
 <div class="line"> */</div>
-<div class="line">void printDataPacket(LoraMesher::userPacket&lt;dataPacket&gt;* packet) {</div>
-<div class="line">    Log.trace(F(&quot;Packet arrived from %X with size %d bytes&quot; CR), packet-&gt;src, packet-&gt;payloadSize);</div>
+<div class="line">void printDataPacket(AppPacket&lt;dataPacket&gt;* packet) {</div>
+<div class="line">    Log.traceln(F(&quot;Packet arrived from %X with size %d bytes&quot;), packet-&gt;src, packet-&gt;payloadSize);</div>
 <div class="line"> </div>
 <div class="line">    //Get the payload to iterate through it</div>
 <div class="line">    dataPacket* dPacket = packet-&gt;payload;</div>
-<div class="line">    size_t payloadLength = radio.getPayloadLength(packet);</div>
+<div class="line">    size_t payloadLength = packet-&gt;getPayloadLength();</div>
 <div class="line"> </div>
 <div class="line">    printPacket(&amp;dPacket[0], packet-&gt;src);</div>
 <div class="line"> </div>
-<div class="line">    Log.trace(F(&quot;---- Payload ---- Payload length in dataP: %d &quot; CR), payloadLength);</div>
+<div class="line">    Log.traceln(F(&quot;---- Payload ---- Payload length in dataP: %d &quot;), payloadLength);</div>
 <div class="line">    Log.setShowLevel(false);</div>
 <div class="line"> </div>
 <div class="line">    for (size_t i = 0; i &lt; payloadLength; i++) {</div>
-<div class="line">        Log.verbose(F(&quot;Received data nº %d&quot; CR), i);</div>
+<div class="line">        Log.verbose(F(&quot;Received data nº %d&quot;), i);</div>
 <div class="line">        Log.verbose(F(&quot;%d -- &quot;), i);</div>
 <div class="line"> </div>
 <div class="line">        for (size_t j = 0; j &lt; 35; j++) {</div>
 <div class="line">            Log.verbose(F(&quot;%d, &quot;), dPacket[i].counter[j]);</div>
 <div class="line"> </div>
 <div class="line">        }</div>
-<div class="line">        Log.verbose(F(&quot;&quot; CR));</div>
+<div class="line">        Log.verbose(F(&quot;&quot;));</div>
 <div class="line">    }</div>
 <div class="line"> </div>
 <div class="line">    Log.setShowLevel(true);</div>
-<div class="line">    Log.trace(F(&quot;---- Payload Done ---- &quot; CR));</div>
+<div class="line">    Log.traceln(F(&quot;---- Payload Done ---- &quot;));</div>
 <div class="line"> </div>
 <div class="line">}</div>
 </div><!-- fragment --><ol type="1">
 <li>After receiving the packet in the <code>processReceivedPackets()</code> function, we call the <code>printDataPacket()</code> function.</li>
 <li>We need to get the payload of the packet using <code>packet-&gt;payload</code>.</li>
-<li>We iterate through the <code>radio.getPayloadLength(packet)</code>. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.</li>
+<li>We iterate through the <code>packet-&gt;getPayloadLength()</code>. This will let us know how big the payload is, in dataPackets types, for a given packet. In our case, we always send only one dataPacket.</li>
 <li>Get the payload and call the <code>printPacket(dPacket[i])</code> function, that will print the counter received.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md33"></a>
+<h3><a class="anchor" id="autotoc_md22"></a>
 Source code</h3>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;Arduino.h&gt;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;loramesher.h&quot;</span></div>
 <div class="line"><span class="preprocessor">#include &quot;display.h&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;WString.h&quot;</span></div>
 <div class="line"> </div>
-<div class="line"><span class="preprocessor">#define BOARD_LED 4</span></div>
+<div class="line"><span class="comment">//Using LILYGO TTGO T-BEAM v1.1 </span></div>
+<div class="line"><span class="preprocessor">#define BOARD_LED   4</span></div>
+<div class="line"><span class="preprocessor">#define LED_ON      LOW</span></div>
+<div class="line"><span class="preprocessor">#define LED_OFF     HIGH</span></div>
 <div class="line"> </div>
 <div class="line"><a class="code hl_class" href="class_lora_mesher.html">LoraMesher</a>&amp; radio = LoraMesher::getInstance();</div>
 <div class="line"> </div>
@@ -331,46 +375,46 @@ Source code</h3>
 <div class="line"><span class="keywordtype">void</span> led_Flash(uint16_t flashes, uint16_t delaymS) {</div>
 <div class="line">    uint16_t index;</div>
 <div class="line">    <span class="keywordflow">for</span> (index = 1; index &lt;= flashes; index++) {</div>
-<div class="line">        digitalWrite(BOARD_LED, HIGH);</div>
+<div class="line">        digitalWrite(BOARD_LED, LED_ON);</div>
 <div class="line">        vTaskDelay(delaymS / portTICK_PERIOD_MS);</div>
-<div class="line">        digitalWrite(BOARD_LED, LOW);</div>
+<div class="line">        digitalWrite(BOARD_LED, LED_OFF);</div>
 <div class="line">        vTaskDelay(delaymS / portTICK_PERIOD_MS);</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> printPacket(dataPacket* data, uint16_t sourceAddress) {</div>
 <div class="line">    <span class="keywordtype">char</span> text[32];</div>
-<div class="line">    snprintf(text, 32, (<span class="stringliteral">&quot;%X-&gt; %d&quot;</span> CR), sourceAddress, data-&gt;counter[0]);</div>
+<div class="line">    snprintf(text, 32, (<span class="stringliteral">&quot;%X-&gt; %d&quot;</span>), sourceAddress, data-&gt;counter[0]);</div>
 <div class="line"> </div>
 <div class="line">    Screen.changeLineThree(String(text));</div>
-<div class="line">    Log.verbose(F(<span class="stringliteral">&quot;Received data nº %d&quot;</span> CR), data-&gt;counter[0]);</div>
+<div class="line">    Log.verboseln(F(<span class="stringliteral">&quot;Received data nº %d&quot;</span>), data-&gt;counter[0]);</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> printDataPacket(<a class="code hl_struct" href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket&lt;dataPacket&gt;</a>* packet) {</div>
-<div class="line">    Log.trace(F(<span class="stringliteral">&quot;Packet arrived from %X with size %d bytes&quot;</span> CR), packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#a1e7f9947d0debb04dab524ed88759670">src</a>, packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#a208db55580328b6815d83aa69736fc02">payloadSize</a>);</div>
+<div class="line"><span class="keywordtype">void</span> printDataPacket(<a class="code hl_class" href="class_app_packet.html">AppPacket&lt;dataPacket&gt;</a>* packet) {</div>
+<div class="line">    Log.traceln(F(<span class="stringliteral">&quot;Packet arrived from %X with size %d bytes&quot;</span>), packet-&gt;<a class="code hl_variable" href="class_app_packet.html#a06eb2921ea65bb29c84ee456ba621242">src</a>, packet-&gt;<a class="code hl_variable" href="class_app_packet.html#a435410b475d7d5b52c1e518ef8bd8f43">payloadSize</a>);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">//Get the payload to iterate through it</span></div>
-<div class="line">    dataPacket* dPacket = packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#adf0ba6eb1b74ea690513fd798016a037">payload</a>;</div>
-<div class="line">    <span class="keywordtype">size_t</span> payloadLength = radio.<a class="code hl_function" href="class_lora_mesher.html#ae12b570f2c65008f93704b2d2236e8f8">getPayloadLength</a>(packet);</div>
+<div class="line">    dataPacket* dPacket = packet-&gt;<a class="code hl_variable" href="class_app_packet.html#a9985e49781b04615954648eba4e9fe00">payload</a>;</div>
+<div class="line">    <span class="keywordtype">size_t</span> payloadLength = packet-&gt;<a class="code hl_function" href="class_app_packet.html#a5a56a3eb0ebe6a502ceb11bad478d8b9">getPayloadLength</a>();</div>
 <div class="line"> </div>
-<div class="line">    printPacket(&amp;dPacket[0], packet-&gt;<a class="code hl_variable" href="struct_lora_mesher_1_1user_packet.html#a1e7f9947d0debb04dab524ed88759670">src</a>);</div>
+<div class="line">    printPacket(&amp;dPacket[0], packet-&gt;<a class="code hl_variable" href="class_app_packet.html#a06eb2921ea65bb29c84ee456ba621242">src</a>);</div>
 <div class="line"> </div>
-<div class="line">    Log.trace(F(<span class="stringliteral">&quot;---- Payload ---- Payload length in dataP: %d &quot;</span> CR), payloadLength);</div>
+<div class="line">    Log.traceln(F(<span class="stringliteral">&quot;---- Payload ---- Payload length in dataP: %d &quot;</span>), payloadLength);</div>
 <div class="line">    Log.setShowLevel(<span class="keyword">false</span>);</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; payloadLength; i++) {</div>
-<div class="line">        Log.verbose(F(<span class="stringliteral">&quot;Received data nº %d&quot;</span> CR), i);</div>
+<div class="line">        Log.verbose(F(<span class="stringliteral">&quot;Received data nº %d&quot;</span>), i);</div>
 <div class="line">        Log.verbose(F(<span class="stringliteral">&quot;%d -- &quot;</span>), i);</div>
 <div class="line"> </div>
 <div class="line">        <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 0; j &lt; 35; j++) {</div>
 <div class="line">            Log.verbose(F(<span class="stringliteral">&quot;%d, &quot;</span>), dPacket[i].counter[j]);</div>
 <div class="line"> </div>
 <div class="line">        }</div>
-<div class="line">        Log.verbose(F(<span class="stringliteral">&quot;&quot;</span> CR));</div>
+<div class="line">        Log.verbose(F(<span class="stringliteral">&quot;&quot;</span>));</div>
 <div class="line">    }</div>
 <div class="line"> </div>
 <div class="line">    Log.setShowLevel(<span class="keyword">true</span>);</div>
-<div class="line">    Log.trace(F(<span class="stringliteral">&quot;---- Payload Done ---- &quot;</span> CR));</div>
+<div class="line">    Log.traceln(F(<span class="stringliteral">&quot;---- Payload Done ---- &quot;</span>));</div>
 <div class="line"> </div>
 <div class="line">}</div>
 <div class="line"> </div>
@@ -382,27 +426,50 @@ Source code</h3>
 <div class="line"> </div>
 <div class="line">        <span class="comment">//Iterate through all the packets inside the Received User Packets FiFo</span></div>
 <div class="line">        <span class="keywordflow">while</span> (radio.<a class="code hl_function" href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">getReceivedQueueSize</a>() &gt; 0) {</div>
-<div class="line">            Log.trace(F(<span class="stringliteral">&quot;ReceivedUserData_TaskHandle notify received&quot;</span> CR));</div>
-<div class="line">            Log.trace(F(<span class="stringliteral">&quot;Fifo receiveUserData size: %d&quot;</span> CR), radio.<a class="code hl_function" href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">getReceivedQueueSize</a>() &gt; 0);</div>
+<div class="line">            Log.traceln(F(<span class="stringliteral">&quot;ReceivedUserData_TaskHandle notify received&quot;</span>));</div>
+<div class="line">            Log.traceln(F(<span class="stringliteral">&quot;Fifo receiveUserData size: %d&quot;</span>), radio.<a class="code hl_function" href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">getReceivedQueueSize</a>() &gt; 0);</div>
 <div class="line"> </div>
 <div class="line">            <span class="comment">//Get the first element inside the Received User Packets FiFo</span></div>
-<div class="line">            <a class="code hl_struct" href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket&lt;dataPacket&gt;</a>* packet = radio.<a class="code hl_function" href="class_lora_mesher.html#a54e0edeaf306b3647325bd362982ee8d">getNextUserPacket</a>&lt;dataPacket&gt;();</div>
+<div class="line">            <a class="code hl_class" href="class_app_packet.html">AppPacket&lt;dataPacket&gt;</a>* packet = radio.<a class="code hl_function" href="class_lora_mesher.html#aafc8af2f509ff9ccf29302f68fb0fecc">getNextAppPacket</a>&lt;dataPacket&gt;();</div>
 <div class="line"> </div>
 <div class="line">            <span class="comment">//Print the data packet</span></div>
 <div class="line">            printDataPacket(packet);</div>
 <div class="line"> </div>
 <div class="line">            <span class="comment">//Delete the packet when used. It is very important to call this function to release the memory of the packet.</span></div>
-<div class="line">            radio.<a class="code hl_function" href="class_lora_mesher.html#a2d6e1298189108bbc07ff5621e4d667a">deletePacket</a>(packet);</div>
+<div class="line">            radio.<a class="code hl_function" href="class_lora_mesher.html#a6394a5a966c890ba31d73a80b104b5a8">deletePacket</a>(packet);</div>
 <div class="line"> </div>
 <div class="line">        }</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keywordtype">void</span> setupLoraMesher() {</div>
-<div class="line">    <span class="comment">//Create a loramesher with a processReceivedPackets function</span></div>
-<div class="line">    radio.<a class="code hl_function" href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">init</a>(processReceivedPackets);</div>
+<div class="line">TaskHandle_t receiveLoRaMessage_Handle = NULL;</div>
 <div class="line"> </div>
-<div class="line">    Log.verbose(<span class="stringliteral">&quot;Lora initialized&quot;</span> CR);</div>
+<div class="line"><span class="keywordtype">void</span> createReceiveMessages() {</div>
+<div class="line">    <span class="keywordtype">int</span> res = xTaskCreate(</div>
+<div class="line">        processReceivedPackets,</div>
+<div class="line">        <span class="stringliteral">&quot;Receive App Task&quot;</span>,</div>
+<div class="line">        4096,</div>
+<div class="line">        (<span class="keywordtype">void</span>*) 1,</div>
+<div class="line">        2,</div>
+<div class="line">        &amp;receiveLoRaMessage_Handle);</div>
+<div class="line">    <span class="keywordflow">if</span> (res != pdPASS) {</div>
+<div class="line">        Log.errorln(F(<span class="stringliteral">&quot;Receive App Task creation gave error: %d&quot;</span>), res);</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    radio.<a class="code hl_function" href="class_lora_mesher.html#a4c4a897794775c5bbdbe0efda3d0300e">setReceiveAppDataTaskHandle</a>(receiveLoRaMessage_Handle);</div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">void</span> setupLoraMesher() {</div>
+<div class="line">    <span class="comment">//Init the loramesher with a processReceivedPackets function</span></div>
+<div class="line">    radio.<a class="code hl_function" href="class_lora_mesher.html#aba71d01e0ed7ad51b4e20547ccc5710c">begin</a>();</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">//Create the receive task and add it to the LoRaMesher</span></div>
+<div class="line">    createReceiveMessages();</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">//Start LoRaMesher</span></div>
+<div class="line">    radio.<a class="code hl_function" href="class_lora_mesher.html#ae5c21366cdf966eb617f61709fe0db6d">start</a>();</div>
+<div class="line"> </div>
+<div class="line">    Log.verboseln(<span class="stringliteral">&quot;Lora initialized&quot;</span>);</div>
 <div class="line">}</div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> printAddressDisplay() {</div>
@@ -412,35 +479,46 @@ Source code</h3>
 <div class="line">    Screen.changeLineOne(String(addrStr));</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> printRoutingTableToDisplay() {</div>
+<div class="line"> </div>
+<div class="line">    <span class="comment">//Set the routing table list that is being used and cannot be accessed (Remember to release use after usage)</span></div>
+<div class="line">    LM_LinkedList&lt;RouteNode&gt;* routingTableList = radio.<a class="code hl_function" href="class_lora_mesher.html#a95c558906294783b7d0211aa871fe503">routingTableList</a>();</div>
+<div class="line"> </div>
+<div class="line">    routingTableList-&gt;setInUse();</div>
+<div class="line"> </div>
+<div class="line">    Screen.changeSizeRouting(radio.<a class="code hl_function" href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">routingTableSize</a>());</div>
+<div class="line"> </div>
 <div class="line">    <span class="keywordtype">char</span> text[15];</div>
 <div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; radio.<a class="code hl_function" href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">routingTableSize</a>(); i++) {</div>
-<div class="line">        <a class="code hl_struct" href="struct_lora_mesher_1_1network_node.html">LoraMesher::networkNode</a> node = radio.<a class="code hl_variable" href="class_lora_mesher.html#a27e10ff173408bfa52063d6bfef2d60a">routingTable</a>[i].<a class="code hl_variable" href="struct_lora_mesher_1_1routable_node.html#a83caf235ee3341ace1e2b3d16e9e447b">networkNode</a>;</div>
-<div class="line">        snprintf(text, 15, (<span class="stringliteral">&quot;|%X(%d)-&gt;%X&quot;</span>), node.<a class="code hl_variable" href="struct_lora_mesher_1_1network_node.html#adb68baebdf5625e9ebad333eff6631c5">address</a>, node.<a class="code hl_variable" href="struct_lora_mesher_1_1network_node.html#ae712ce7d74d1bb71477e850da78f5f6a">metric</a>, radio.<a class="code hl_variable" href="class_lora_mesher.html#a27e10ff173408bfa52063d6bfef2d60a">routingTable</a>[i].<a class="code hl_variable" href="struct_lora_mesher_1_1routable_node.html#a21557c3db9cbd53de180ccd30922969e">via</a>);</div>
+<div class="line">        <a class="code hl_class" href="class_route_node.html">RouteNode</a>* rNode = (*routingTableList)[i];</div>
+<div class="line">        <a class="code hl_class" href="class_network_node.html">NetworkNode</a> node = rNode-&gt;<a class="code hl_variable" href="class_route_node.html#a35afd0f5a320e24522048255b314f40e">networkNode</a>;</div>
+<div class="line">        snprintf(text, 15, (<span class="stringliteral">&quot;|%X(%d)-&gt;%X&quot;</span>), node.<a class="code hl_variable" href="class_network_node.html#a23ece8cd4ccf41f1ac55b23d40278ae8">address</a>, node.<a class="code hl_variable" href="class_network_node.html#a292bca6630664cea96b48cff7e4a42e2">metric</a>, rNode-&gt;<a class="code hl_variable" href="class_route_node.html#aaded6479dff0cdd9357180cf35a549fa">via</a>);</div>
 <div class="line">        Screen.changeRoutingText(text, i);</div>
 <div class="line">    }</div>
 <div class="line"> </div>
-<div class="line">    Screen.changeSizeRouting(radio.<a class="code hl_function" href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">routingTableSize</a>());</div>
+<div class="line">    <span class="comment">//Release routing table list usage.</span></div>
+<div class="line">    routingTableList-&gt;releaseInUse();</div>
+<div class="line"> </div>
 <div class="line">    Screen.changeLineFour();</div>
 <div class="line">}</div>
-<div class="line"> </div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">void</span> sendLoRaMessage(<span class="keywordtype">void</span>*) {</div>
 <div class="line">    <span class="keywordtype">int</span> dataTablePosition = 0;</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">for</span> (;;) {</div>
 <div class="line">        <span class="keywordflow">if</span> (radio.<a class="code hl_function" href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">routingTableSize</a>() == 0) {</div>
-<div class="line">            vTaskDelay(20000 / portTICK_PERIOD_MS);</div>
+<div class="line">            vTaskDelay(120000 / portTICK_PERIOD_MS);</div>
 <div class="line">            <span class="keywordflow">continue</span>;</div>
 <div class="line">        }</div>
 <div class="line"> </div>
 <div class="line">        <span class="keywordflow">if</span> (radio.<a class="code hl_function" href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">routingTableSize</a>() &lt;= dataTablePosition)</div>
 <div class="line">            dataTablePosition = 0;</div>
 <div class="line"> </div>
-<div class="line">        uint16_t addr = radio.<a class="code hl_variable" href="class_lora_mesher.html#a27e10ff173408bfa52063d6bfef2d60a">routingTable</a>[dataTablePosition].<a class="code hl_variable" href="struct_lora_mesher_1_1routable_node.html#a83caf235ee3341ace1e2b3d16e9e447b">networkNode</a>.<a class="code hl_variable" href="struct_lora_mesher_1_1network_node.html#adb68baebdf5625e9ebad333eff6631c5">address</a>;</div>
+<div class="line">        LM_LinkedList&lt;RouteNode&gt;* routingTableList = radio.<a class="code hl_function" href="class_lora_mesher.html#a95c558906294783b7d0211aa871fe503">routingTableList</a>();</div>
 <div class="line"> </div>
-<div class="line">        Log.trace(F(<span class="stringliteral">&quot;Send data packet nº %d to %X (%d)&quot;</span> CR), dataCounter, addr, dataTablePosition);</div>
+<div class="line">        uint16_t addr = (*routingTableList)[dataTablePosition]-&gt;networkNode.address;</div>
+<div class="line"> </div>
+<div class="line">        Log.traceln(F(<span class="stringliteral">&quot;Send data packet nº %d to %X (%d)&quot;</span>), dataCounter, addr, dataTablePosition);</div>
 <div class="line"> </div>
 <div class="line">        dataTablePosition++;</div>
 <div class="line"> </div>
@@ -457,7 +535,7 @@ Source code</h3>
 <div class="line">        printRoutingTableToDisplay();</div>
 <div class="line"> </div>
 <div class="line">        <span class="comment">//Wait 20 seconds to send the next packet</span></div>
-<div class="line">        vTaskDelay(20000 / portTICK_PERIOD_MS);</div>
+<div class="line">        vTaskDelay(120000 / portTICK_PERIOD_MS);</div>
 <div class="line">    }</div>
 <div class="line">}</div>
 <div class="line"> </div>
@@ -471,7 +549,7 @@ Source code</h3>
 <div class="line">        1,</div>
 <div class="line">        &amp;sendLoRaMessage_Handle);</div>
 <div class="line">    <span class="keywordflow">if</span> (res != pdPASS) {</div>
-<div class="line">        Log.error(F(<span class="stringliteral">&quot;Send LoRa Message task creation gave error: %d&quot;</span> CR), res);</div>
+<div class="line">        Log.errorln(F(<span class="stringliteral">&quot;Send LoRa Message task creation gave error: %d&quot;</span>), res);</div>
 <div class="line">        vTaskDelete(sendLoRaMessage_Handle);</div>
 <div class="line">    }</div>
 <div class="line">}</div>
@@ -481,7 +559,7 @@ Source code</h3>
 <div class="line">    pinMode(BOARD_LED, OUTPUT); <span class="comment">//setup pin as output for indicator LED</span></div>
 <div class="line"> </div>
 <div class="line">    Screen.initDisplay();</div>
-<div class="line">    Log.verbose(<span class="stringliteral">&quot;Board Init&quot;</span> CR);</div>
+<div class="line">    Log.verboseln(<span class="stringliteral">&quot;Board Init&quot;</span>);</div>
 <div class="line"> </div>
 <div class="line"> </div>
 <div class="line">    led_Flash(2, 125);          <span class="comment">//two quick LED flashes to indicate program start</span></div>
@@ -493,32 +571,34 @@ Source code</h3>
 <div class="line"><span class="keywordtype">void</span> loop() {</div>
 <div class="line">    Screen.drawDisplay();</div>
 <div class="line">}</div>
-<div class="ttc" id="aclass_lora_mesher_html"><div class="ttname"><a href="class_lora_mesher.html">LoraMesher</a></div><div class="ttdef"><b>Definition:</b> loramesher.h:68</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_a1cd59cbd716f9e11ca993798f79d7a41"><div class="ttname"><a href="class_lora_mesher.html#a1cd59cbd716f9e11ca993798f79d7a41">LoraMesher::getLocalAddress</a></div><div class="ttdeci">uint16_t getLocalAddress()</div><div class="ttdoc">Get the Local Address.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:218</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_a27e10ff173408bfa52063d6bfef2d60a"><div class="ttname"><a href="class_lora_mesher.html#a27e10ff173408bfa52063d6bfef2d60a">LoraMesher::routingTable</a></div><div class="ttdeci">routableNode routingTable[RTMAXSIZE]</div><div class="ttdoc">Routing table array.</div><div class="ttdef"><b>Definition:</b> loramesher.h:289</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_a2d6e1298189108bbc07ff5621e4d667a"><div class="ttname"><a href="class_lora_mesher.html#a2d6e1298189108bbc07ff5621e4d667a">LoraMesher::deletePacket</a></div><div class="ttdeci">static void deletePacket(userPacket&lt; T &gt; *p)</div><div class="ttdoc">Delete the packet from memory.</div><div class="ttdef"><b>Definition:</b> loramesher.h:236</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_a54e0edeaf306b3647325bd362982ee8d"><div class="ttname"><a href="class_lora_mesher.html#a54e0edeaf306b3647325bd362982ee8d">LoraMesher::getNextUserPacket</a></div><div class="ttdeci">userPacket&lt; T &gt; * getNextUserPacket()</div><div class="ttdoc">Get the Next User Packet.</div><div class="ttdef"><b>Definition:</b> loramesher.h:208</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ab70a80c723b4a610b897fd8f523a3359"><div class="ttname"><a href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">LoraMesher::routingTableSize</a></div><div class="ttdeci">int routingTableSize()</div><div class="ttdoc">Returns the routing table size.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:561</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ac3807f4ae5e6fa40e7e403df040e69ca"><div class="ttname"><a href="class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca">LoraMesher::init</a></div><div class="ttdeci">void init(void(*receiverFunction)(void *))</div><div class="ttdoc">Initialize the Lora Mesher object.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:5</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ac600ecb52b71892e12bb7e1889be6de8"><div class="ttname"><a href="class_lora_mesher.html#ac600ecb52b71892e12bb7e1889be6de8">LoraMesher::createPacketAndSend</a></div><div class="ttdeci">void createPacketAndSend(uint16_t dst, T *payload, uint8_t payloadSize)</div><div class="ttdoc">Create a Packet And Send it.</div><div class="ttdef"><b>Definition:</b> loramesher.h:159</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_ae12b570f2c65008f93704b2d2236e8f8"><div class="ttname"><a href="class_lora_mesher.html#ae12b570f2c65008f93704b2d2236e8f8">LoraMesher::getPayloadLength</a></div><div class="ttdeci">size_t getPayloadLength(userPacket&lt; T &gt; *p)</div><div class="ttdoc">Get the payload length in number of T.</div><div class="ttdef"><b>Definition:</b> loramesher.h:225</div></div>
-<div class="ttc" id="aclass_lora_mesher_html_af02b008ec573f4c0f0b3ea7a31e0982e"><div class="ttname"><a href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">LoraMesher::getReceivedQueueSize</a></div><div class="ttdeci">size_t getReceivedQueueSize()</div><div class="ttdoc">Returns the number of packets inside the received packets queue.</div><div class="ttdef"><b>Definition:</b> loramesher.cpp:764</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1network_node_html"><div class="ttname"><a href="struct_lora_mesher_1_1network_node.html">LoraMesher::networkNode</a></div><div class="ttdoc">Network node, used to send and store the routing table.</div><div class="ttdef"><b>Definition:</b> loramesher.h:246</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1network_node_html_adb68baebdf5625e9ebad333eff6631c5"><div class="ttname"><a href="struct_lora_mesher_1_1network_node.html#adb68baebdf5625e9ebad333eff6631c5">LoraMesher::networkNode::address</a></div><div class="ttdeci">uint16_t address</div><div class="ttdoc">Address.</div><div class="ttdef"><b>Definition:</b> loramesher.h:251</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1network_node_html_ae712ce7d74d1bb71477e850da78f5f6a"><div class="ttname"><a href="struct_lora_mesher_1_1network_node.html#ae712ce7d74d1bb71477e850da78f5f6a">LoraMesher::networkNode::metric</a></div><div class="ttdeci">uint8_t metric</div><div class="ttdoc">Metric, how many hops to reach the previous address.</div><div class="ttdef"><b>Definition:</b> loramesher.h:257</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1routable_node_html_a21557c3db9cbd53de180ccd30922969e"><div class="ttname"><a href="struct_lora_mesher_1_1routable_node.html#a21557c3db9cbd53de180ccd30922969e">LoraMesher::routableNode::via</a></div><div class="ttdeci">uint16_t via</div><div class="ttdoc">Next hop to send the message.</div><div class="ttdef"><b>Definition:</b> loramesher.h:281</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1routable_node_html_a83caf235ee3341ace1e2b3d16e9e447b"><div class="ttname"><a href="struct_lora_mesher_1_1routable_node.html#a83caf235ee3341ace1e2b3d16e9e447b">LoraMesher::routableNode::networkNode</a></div><div class="ttdeci">LoraMesher::networkNode networkNode</div><div class="ttdoc">Network node.</div><div class="ttdef"><b>Definition:</b> loramesher.h:269</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html">LoraMesher::userPacket</a></div><div class="ttdoc">User packet, it is used to send the packet to the user.</div><div class="ttdef"><b>Definition:</b> loramesher.h:123</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html_a1e7f9947d0debb04dab524ed88759670"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html#a1e7f9947d0debb04dab524ed88759670">LoraMesher::userPacket::src</a></div><div class="ttdeci">uint16_t src</div><div class="ttdoc">Source Address.</div><div class="ttdef"><b>Definition:</b> loramesher.h:134</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html_a208db55580328b6815d83aa69736fc02"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html#a208db55580328b6815d83aa69736fc02">LoraMesher::userPacket::payloadSize</a></div><div class="ttdeci">uint32_t payloadSize</div><div class="ttdoc">Payload Size in bytes.</div><div class="ttdef"><b>Definition:</b> loramesher.h:140</div></div>
-<div class="ttc" id="astruct_lora_mesher_1_1user_packet_html_adf0ba6eb1b74ea690513fd798016a037"><div class="ttname"><a href="struct_lora_mesher_1_1user_packet.html#adf0ba6eb1b74ea690513fd798016a037">LoraMesher::userPacket::payload</a></div><div class="ttdeci">T payload[]</div><div class="ttdoc">Payload Array.</div><div class="ttdef"><b>Definition:</b> loramesher.h:146</div></div>
+<div class="ttc" id="aclass_app_packet_html"><div class="ttname"><a href="class_app_packet.html">AppPacket</a></div><div class="ttdoc">Application packet, it is used to send the packet to the application layer.</div><div class="ttdef"><b>Definition:</b> AppPacket.h:11</div></div>
+<div class="ttc" id="aclass_app_packet_html_a06eb2921ea65bb29c84ee456ba621242"><div class="ttname"><a href="class_app_packet.html#a06eb2921ea65bb29c84ee456ba621242">AppPacket::src</a></div><div class="ttdeci">uint16_t src</div><div class="ttdoc">Source Address.</div><div class="ttdef"><b>Definition:</b> AppPacket.h:23</div></div>
+<div class="ttc" id="aclass_app_packet_html_a435410b475d7d5b52c1e518ef8bd8f43"><div class="ttname"><a href="class_app_packet.html#a435410b475d7d5b52c1e518ef8bd8f43">AppPacket::payloadSize</a></div><div class="ttdeci">uint32_t payloadSize</div><div class="ttdoc">Payload Size in bytes.</div><div class="ttdef"><b>Definition:</b> AppPacket.h:29</div></div>
+<div class="ttc" id="aclass_app_packet_html_a5a56a3eb0ebe6a502ceb11bad478d8b9"><div class="ttname"><a href="class_app_packet.html#a5a56a3eb0ebe6a502ceb11bad478d8b9">AppPacket::getPayloadLength</a></div><div class="ttdeci">size_t getPayloadLength()</div><div class="ttdoc">Get the payload length in number of T.</div><div class="ttdef"><b>Definition:</b> AppPacket.h:44</div></div>
+<div class="ttc" id="aclass_app_packet_html_a9985e49781b04615954648eba4e9fe00"><div class="ttname"><a href="class_app_packet.html#a9985e49781b04615954648eba4e9fe00">AppPacket::payload</a></div><div class="ttdeci">T payload[]</div><div class="ttdoc">Payload Array.</div><div class="ttdef"><b>Definition:</b> AppPacket.h:35</div></div>
+<div class="ttc" id="aclass_lora_mesher_html"><div class="ttname"><a href="class_lora_mesher.html">LoraMesher</a></div><div class="ttdef"><b>Definition:</b> LoraMesher.h:24</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_a1cd59cbd716f9e11ca993798f79d7a41"><div class="ttname"><a href="class_lora_mesher.html#a1cd59cbd716f9e11ca993798f79d7a41">LoraMesher::getLocalAddress</a></div><div class="ttdeci">uint16_t getLocalAddress()</div><div class="ttdoc">Get the Local Address.</div><div class="ttdef"><b>Definition:</b> LoraMesher.cpp:287</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_a4c4a897794775c5bbdbe0efda3d0300e"><div class="ttname"><a href="class_lora_mesher.html#a4c4a897794775c5bbdbe0efda3d0300e">LoraMesher::setReceiveAppDataTaskHandle</a></div><div class="ttdeci">void setReceiveAppDataTaskHandle(TaskHandle_t ReceiveAppDataTaskHandle)</div><div class="ttdoc">Set the Receive App Data Task Handle, every time a received packet for this node is detected,...</div><div class="ttdef"><b>Definition:</b> LoraMesher.h:191</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_a6394a5a966c890ba31d73a80b104b5a8"><div class="ttname"><a href="class_lora_mesher.html#a6394a5a966c890ba31d73a80b104b5a8">LoraMesher::deletePacket</a></div><div class="ttdeci">static void deletePacket(AppPacket&lt; T &gt; *p)</div><div class="ttdoc">Delete the packet from memory.</div><div class="ttdef"><b>Definition:</b> LoraMesher.h:281</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_a95c558906294783b7d0211aa871fe503"><div class="ttname"><a href="class_lora_mesher.html#a95c558906294783b7d0211aa871fe503">LoraMesher::routingTableList</a></div><div class="ttdeci">LM_LinkedList&lt; RouteNode &gt; * routingTableList()</div><div class="ttdoc">Routing table List.</div><div class="ttdef"><b>Definition:</b> LoraMesher.h:197</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_aafc8af2f509ff9ccf29302f68fb0fecc"><div class="ttname"><a href="class_lora_mesher.html#aafc8af2f509ff9ccf29302f68fb0fecc">LoraMesher::getNextAppPacket</a></div><div class="ttdeci">AppPacket&lt; T &gt; * getNextAppPacket()</div><div class="ttdoc">Get the Next Application Packet.</div><div class="ttdef"><b>Definition:</b> LoraMesher.h:267</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ab70a80c723b4a610b897fd8f523a3359"><div class="ttname"><a href="class_lora_mesher.html#ab70a80c723b4a610b897fd8f523a3359">LoraMesher::routingTableSize</a></div><div class="ttdeci">int routingTableSize()</div><div class="ttdoc">Returns the routing table size.</div><div class="ttdef"><b>Definition:</b> LoraMesher.cpp:692</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_aba71d01e0ed7ad51b4e20547ccc5710c"><div class="ttname"><a href="class_lora_mesher.html#aba71d01e0ed7ad51b4e20547ccc5710c">LoraMesher::begin</a></div><div class="ttdeci">void begin(float freq=LM_BAND, float bw=LM_BANDWIDTH, uint8_t sf=LM_LORASF, uint8_t cr=LM_CODING_RATE, uint8_t syncWord=LM_SYNC_WORD, int8_t power=LM_POWER, uint16_t preambleLength=LM_PREAMBLE_LENGTH)</div><div class="ttdoc">LoRaMesh initialization method.</div><div class="ttdef"><b>Definition:</b> LoraMesher.cpp:5</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ac600ecb52b71892e12bb7e1889be6de8"><div class="ttname"><a href="class_lora_mesher.html#ac600ecb52b71892e12bb7e1889be6de8">LoraMesher::createPacketAndSend</a></div><div class="ttdeci">void createPacketAndSend(uint16_t dst, T *payload, uint8_t payloadSize)</div><div class="ttdoc">Create a Packet And Send it.</div><div class="ttdef"><b>Definition:</b> LoraMesher.h:208</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_ae5c21366cdf966eb617f61709fe0db6d"><div class="ttname"><a href="class_lora_mesher.html#ae5c21366cdf966eb617f61709fe0db6d">LoraMesher::start</a></div><div class="ttdeci">void start()</div><div class="ttdoc">Start/Resume LoRaMesher. After calling begin(...) or standby() you can Start/resume the LoRaMesher....</div><div class="ttdef"><b>Definition:</b> LoraMesher.cpp:52</div></div>
+<div class="ttc" id="aclass_lora_mesher_html_af02b008ec573f4c0f0b3ea7a31e0982e"><div class="ttname"><a href="class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e">LoraMesher::getReceivedQueueSize</a></div><div class="ttdeci">size_t getReceivedQueueSize()</div><div class="ttdoc">Returns the number of packets inside the received packets queue.</div><div class="ttdef"><b>Definition:</b> LoraMesher.cpp:705</div></div>
+<div class="ttc" id="aclass_network_node_html"><div class="ttname"><a href="class_network_node.html">NetworkNode</a></div><div class="ttdef"><b>Definition:</b> NetworkNode.h:8</div></div>
+<div class="ttc" id="aclass_network_node_html_a23ece8cd4ccf41f1ac55b23d40278ae8"><div class="ttname"><a href="class_network_node.html#a23ece8cd4ccf41f1ac55b23d40278ae8">NetworkNode::address</a></div><div class="ttdeci">uint16_t address</div><div class="ttdoc">Address.</div><div class="ttdef"><b>Definition:</b> NetworkNode.h:14</div></div>
+<div class="ttc" id="aclass_network_node_html_a292bca6630664cea96b48cff7e4a42e2"><div class="ttname"><a href="class_network_node.html#a292bca6630664cea96b48cff7e4a42e2">NetworkNode::metric</a></div><div class="ttdeci">uint8_t metric</div><div class="ttdoc">Metric, how many hops to reach the previous address.</div><div class="ttdef"><b>Definition:</b> NetworkNode.h:20</div></div>
+<div class="ttc" id="aclass_route_node_html"><div class="ttname"><a href="class_route_node.html">RouteNode</a></div><div class="ttdef"><b>Definition:</b> RouteNode.h:8</div></div>
+<div class="ttc" id="aclass_route_node_html_a35afd0f5a320e24522048255b314f40e"><div class="ttname"><a href="class_route_node.html#a35afd0f5a320e24522048255b314f40e">RouteNode::networkNode</a></div><div class="ttdeci">NetworkNode networkNode</div><div class="ttdoc">Network node.</div><div class="ttdef"><b>Definition:</b> RouteNode.h:14</div></div>
+<div class="ttc" id="aclass_route_node_html_aaded6479dff0cdd9357180cf35a549fa"><div class="ttname"><a href="class_route_node.html#aaded6479dff0cdd9357180cf35a549fa">RouteNode::via</a></div><div class="ttdeci">uint16_t via</div><div class="ttdoc">Next hop to send the message.</div><div class="ttdef"><b>Definition:</b> RouteNode.h:26</div></div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="_list_of_examples.html">Examples</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.3 </li>
   </ul>
 </div>

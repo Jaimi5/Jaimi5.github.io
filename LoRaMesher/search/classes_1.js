@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['networknode_0',['networkNode',['../struct_lora_mesher_1_1network_node.html',1,'LoraMesher']]]
+  ['loramesher_0',['LoraMesher',['../class_lora_mesher.html',1,'']]]
 ];

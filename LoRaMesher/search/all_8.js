@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['metric_0',['metric',['../struct_lora_mesher_1_1network_node.html#ae712ce7d74d1bb71477e850da78f5f6a',1,'LoraMesher::networkNode']]]
+  ['init_0',['init',['../class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca',1,'LoraMesher']]]
 ];

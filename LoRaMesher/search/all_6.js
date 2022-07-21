@@ -1,4 +1,22 @@
 var searchData=
 [
-  ['init_0',['init',['../class_lora_mesher.html#ac3807f4ae5e6fa40e7e403df040e69ca',1,'LoraMesher']]]
+  ['getallnetworknodes_0',['getAllNetworkNodes',['../class_routing_table_service.html#a2d371d437c0948734b589030f7fccb41',1,'RoutingTableService']]],
+  ['getdatapacketsformenum_1',['getDataPacketsForMeNum',['../class_lora_mesher.html#ad016cfcbbaaccfaba17c8a4c7bd752f2',1,'LoraMesher']]],
+  ['getdestinyunreachablenum_2',['getDestinyUnreachableNum',['../class_lora_mesher.html#ab49ad5f6b8425e054ffb98a5aa7ee348',1,'LoraMesher']]],
+  ['getforwardedpacketsnum_3',['getForwardedPacketsNum',['../class_lora_mesher.html#a009931f3407945e950a48a004c33d2bb',1,'LoraMesher']]],
+  ['getinstance_4',['getInstance',['../class_lora_mesher.html#a7b71856ecfaa71d694fb008c0ba4642a',1,'LoraMesher']]],
+  ['getlocaladdress_5',['getLocalAddress',['../class_lora_mesher.html#a1cd59cbd716f9e11ca993798f79d7a41',1,'LoraMesher']]],
+  ['getnextapppacket_6',['getNextAppPacket',['../class_lora_mesher.html#aafc8af2f509ff9ccf29302f68fb0fecc',1,'LoraMesher']]],
+  ['getnexthop_7',['getNextHop',['../class_routing_table_service.html#a30eee4346fe557a6c349f5cd0f6224b0',1,'RoutingTableService']]],
+  ['getnumberofhops_8',['getNumberOfHops',['../class_routing_table_service.html#aa35e1c2b74e0688539f73c0400ca4108',1,'RoutingTableService']]],
+  ['getpayloadlength_9',['getPayloadLength',['../class_app_packet.html#a5a56a3eb0ebe6a502ceb11bad478d8b9',1,'AppPacket']]],
+  ['getreceivedbroadcastpacketsnum_10',['getReceivedBroadcastPacketsNum',['../class_lora_mesher.html#ac4be78d409056b2b08fc791dec22a6f6',1,'LoraMesher']]],
+  ['getreceiveddatapacketsnum_11',['getReceivedDataPacketsNum',['../class_lora_mesher.html#a162cd86a73839ef5e5cb1704c00ae319',1,'LoraMesher']]],
+  ['getreceivedhellopacketsnum_12',['getReceivedHelloPacketsNum',['../class_lora_mesher.html#a9be61e4c37ede5893d3ef33492194be6',1,'LoraMesher']]],
+  ['getreceivediamvianum_13',['getReceivedIAmViaNum',['../class_lora_mesher.html#a259d279e3234596681c1fe8e99c76ba0',1,'LoraMesher']]],
+  ['getreceivednotforme_14',['getReceivedNotForMe',['../class_lora_mesher.html#a70ba2a5cab6bdca81a018047d4f87a44',1,'LoraMesher']]],
+  ['getreceivedqueuesize_15',['getReceivedQueueSize',['../class_lora_mesher.html#af02b008ec573f4c0f0b3ea7a31e0982e',1,'LoraMesher']]],
+  ['getsendpacketsnum_16',['getSendPacketsNum',['../class_lora_mesher.html#a102f10cff7bde5c5bda7a692a16acdaf',1,'LoraMesher']]],
+  ['getsendqueuesize_17',['getSendQueueSize',['../class_lora_mesher.html#a09a7e1a6f5b8254d672231fba450218c',1,'LoraMesher']]],
+  ['getsenthellopacketsnum_18',['getSentHelloPacketsNum',['../class_lora_mesher.html#aea8199cc3680e27c952b14778c6d166f',1,'LoraMesher']]]
 ];
