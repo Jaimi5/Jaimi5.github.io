@@ -5,20 +5,20 @@ Licence under Creative Commons Attribution 3.0
 Do not remove the back-link in this web template 
 -------------------------------------------------------*/
 
-$(window).load(function() {
+$(window).load(function () {
     jQuery('#all').click();
     return false;
 });
 
-$(document).ready(function() {
-	$('.carousel').carousel();
+$(document).ready(function () {
+    $('.carousel').carousel();
     $('#header_wrapper').scrollToFixed();
-    $('.res-nav_click').click(function() {
+    $('.res-nav_click').click(function () {
         $('.main-nav').slideToggle();
         return false
 
     });
-	
+
     function resizeText() {
         var preferredWidth = 767;
         var displayWidth = window.innerWidth;
@@ -37,9 +37,9 @@ $(document).ready(function() {
         scrollThreshold: 0.2,
         filter: '',
         easing: 'swing',
-        begin: function() {
+        begin: function () {
         },
-        end: function() {
+        end: function () {
             if (!$('#main-nav ul li:first-child').hasClass('active')) {
                 $('.header').addClass('addBg');
             } else {
@@ -47,7 +47,7 @@ $(document).ready(function() {
             }
 
         },
-        scrollChange: function($currentListItem) {
+        scrollChange: function ($currentListItem) {
             if (!$('#main-nav ul li:first-child').hasClass('active')) {
                 $('.header').addClass('addBg');
             } else {
@@ -68,7 +68,7 @@ $(document).ready(function() {
         layoutMode: 'fitRows'
     });
 
-    $('#filters a').click(function() {
+    $('#filters a').click(function () {
         $('#filters a').removeClass('active');
         $(this).addClass('active');
         var selector = $(this).attr('data-filter');
@@ -96,13 +96,13 @@ $(document).ready(function() {
 
         return columnNumb;
     }
-	
+
     function setColumns() {
         var winWidth = $(window).width(),
             columnNumb = splitColumns(),
             postWidth = Math.floor(winWidth / columnNumb);
 
-        container.find('.portfolio-item').each(function() {
+        container.find('.portfolio-item').each(function () {
             $(this).css({
                 width: postWidth + 'px'
             });
@@ -114,16 +114,16 @@ $(document).ready(function() {
         container.isotope('reLayout');
     }
 
-    container.imagesLoaded(function() {
+    container.imagesLoaded(function () {
         setColumns();
     });
 
 
-    $(window).bind('resize', function() {
+    $(window).bind('resize', function () {
         setProjects();
     });
 
-   $(".fancybox").fancybox();
+    $(".fancybox").fancybox();
 });
 
 wow = new WOW({
@@ -131,7 +131,8 @@ wow = new WOW({
     offset: 100
 });
 wow.init();
-document.getElementById('').onclick = function() {
+
+document.getElementById('').onclick = function () {
     var section = document.createElement('section');
     section.className = 'wow fadeInDown';
     section.className = 'wow shake';
